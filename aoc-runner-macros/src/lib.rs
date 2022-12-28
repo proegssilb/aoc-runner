@@ -3,7 +3,7 @@ use std::{collections::HashMap};
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::{ToTokens, quote};
-use syn::{parse_macro_input, ItemFn, Item, ItemMod, Ident, token::{Comma}, Type, ReturnType, parse::Parse, spanned::Spanned};
+use syn::{parse_macro_input, ItemFn, Item, ItemMod, Ident, token::{Comma}, Type, ReturnType, parse::Parse, spanned::Spanned, ItemConst, Expr, Token};
 
 
 // Flag macros ------------------------------------------------------------
@@ -29,12 +29,72 @@ pub fn flag(_attr: TokenStream, item: TokenStream) -> TokenStream {
     proc_macro::TokenStream::from(item.into_token_stream())
 }
 
-// Main -------------------------------------------------------------------
-#[proc_macro]
-pub fn aoc_main(item: TokenStream) -> TokenStream {
-    println!("{:-^50}", "Main Macro called");
-    dbg!(&item);
-    item
+// Tests -------------------------------------------------------------------
+
+struct AocCaseArgs {
+    expected_p1: Expr,
+    expected_p2: Option<Expr>,
+}
+
+impl Parse for AocCaseArgs {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let p1: Expr = input.parse()?;
+        let lookahead = input.lookahead1();
+        if lookahead.peek(Token![,]) {
+            let _: Comma = input.parse()?;
+            let p2: Expr = input.parse()?;
+            Ok(AocCaseArgs { expected_p1: p1, expected_p2: Some(p2) })
+        } else {
+            if !input.is_empty() {
+                Err(input.error("Expected: a single expression for just testing Part 1, or two expressions as two arguments if testing Part 1 and Part 2."))
+            } else {
+                Ok(AocCaseArgs { expected_p1: p1, expected_p2: None })
+            }
+        }
+    }
+}
+
+#[proc_macro_attribute]
+pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let args = parse_macro_input!(attr as AocCaseArgs);
+    let exp_p1 = args.expected_p1;
+    let p2 = args.expected_p2;
+    let input = parse_macro_input!(item as ItemConst);
+    let ty = input.ty.as_ref();
+    let in_val = input.expr.as_ref();
+    let slug_str: String = "aoc_test_".to_string() + input.ident.to_string().as_str();
+    let slug = Ident::new(&slug_str, input.ident.span());
+
+    if let Some(exp_p2) = p2 {
+        quote! {
+            #[test]
+            fn #slug() {
+                let expected_p1 = #exp_p1;
+                let expected_p2 = #exp_p2;
+                let input: #ty = #in_val;
+        
+                for p1 in super::_gen_lists::P1_SOLUTIONS {
+                    assert_eq!(expected_p1, p1(input));
+                }
+                for p2 in super::_gen_lists::P2_SOLUTIONS {
+                    assert_eq!(expected_p2, p2(input));
+                }
+            }
+        }.into()
+    } else {
+        quote! {
+            #[test]
+            fn #slug() {
+                let expected_p1 = #exp_p1;
+                let input: #ty = #in_val;
+        
+                for p1 in _gen_lists::P1_SOLUTIONS {
+                    assert_eq!(expected_p1, p1(input));
+                }
+            }
+        }.into()
+    }
+    
 }
 
 // AOC --------------------------------------------------------------------

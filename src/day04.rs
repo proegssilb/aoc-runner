@@ -174,41 +174,18 @@ pub mod solutions {
 
 // Testing ----------------------------------------------------------
 
-/* User-supplied Test:
-#[aoc_test(Part1)]
-fn aoc_test(p1: F)
-where F: Fn(&str) -> impl Into<i32>
-{
-assert_eq!(2i32, p1(sample_in1));
-}
+#[cfg(test)]
+mod test {
+    use aoc_runner_macros::aoc_case;
 
-#[aoc_test(Part2)]
-fn aoc_test(p2: F)
-where F: Fn(&str) -> impl Into<i32>
-{
-assert_eq!(4i32, p2(sample_in1));
-}
-*/
-
-// User should supply this
-#[allow(unused)]
-const SAMPLE_IN1: &str = r#"2-4,6-8
+    #[aoc_case(2i32, 4i32)]
+    const SAMPLE_IN1: &str = r#"2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7
 6-6,4-6
 2-6,4-8
 "#;
-
-// Auto-generated Result (ideally):
-#[test]
-fn aoc_test() {
-    for p1 in _gen_lists::P1S {
-        assert_eq!(2i32, p1(SAMPLE_IN1));
-    }
-    for p2 in _gen_lists::P2S {
-        assert_eq!(4i32, p2(SAMPLE_IN1));
-    }
 }
 
 // Auto-Genned Benches ----------------------------------------------
