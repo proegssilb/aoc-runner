@@ -31,6 +31,8 @@ pub fn u16_to_u64_array_assign(xs: &[u16; 4]) -> u64 {
 
 #[aoc(i32)]
 pub mod solutions {
+    use aoc_runner_macros::solution;
+
     use super::*;
 
     // Generators -------------------------------------------------------
@@ -123,6 +125,26 @@ pub mod solutions {
             let res = cmp1 != cmp2 || cmp1 == 0;
         res as i32
         }).sum()
+    }
+
+    #[solution(p1, aio_bitbang)]
+    pub fn solut_part1_bitbang(input: &str) -> i32 {
+        let mut sum: i32 = 0;
+        for line in input.lines() {
+            let (s1, rest) = line.split_once('-').unwrap();
+            let (e1, rest) = rest.split_once(',').unwrap();
+            let (s2, e2) = rest.split_once('-').unwrap();
+            let s1 = str_to_uint(s1);
+            let e1 = str_to_uint(e1);
+            let s2 = str_to_uint(s2);
+            let e2 = str_to_uint(e2);
+            let cmp1 = ((s1 as i32) - (s2 as i32)).signum();
+            let cmp2 = ((e1 as i32) - (e2 as i32)).signum();
+            let res = cmp1 != cmp2 || cmp1 == 0;
+            sum += res as i32;
+        }
+
+        sum
     }
 
     #[solver(part2, tuplecmp)]

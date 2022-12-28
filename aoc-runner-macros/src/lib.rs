@@ -192,13 +192,13 @@ impl<'a> AocSolutionsAggregation<'a> {
         }
     }
 
-    // fn p1_user_solns(&self) -> impl Iterator<Item = &AocSolutionData<'a>> {
-    //     self.solutions_p1.iter()
-    // }
+    fn p1_user_solns(&self) -> impl Iterator<Item = &AocSolutionData<'a>> {
+        self.solutions_p1.iter()
+    }
 
-    // fn p2_user_solns(&self) -> impl Iterator<Item = &AocSolutionData<'a>> {
-    //     self.solutions_p2.iter()
-    // }
+    fn p2_user_solns(&self) -> impl Iterator<Item = &AocSolutionData<'a>> {
+        self.solutions_p2.iter()
+    }
 
     fn p1_composed_solns(&self) -> impl Iterator<Item = (&AocGeneratorData<'a>, &AocSolverData<'a>)> {
         self.generators.iter().flat_map(|(ty, gens)| {
@@ -271,39 +271,50 @@ fn discover_mod_contents(module: &ItemMod) -> syn::Result<AocSolutionsAggregatio
     Ok(result)
 }
 
+fn gen_idents_from_solns<'a>(part_indicator: &str, solns: impl Iterator<Item = (&'a AocGeneratorData<'a>, &'a AocSolverData<'a>)>) -> Vec<(&'a Ident, &'a Ident, Ident)> {
+    solns.map(|(gen, sol)| {
+        let g_ident = &gen.source.sig.ident;
+        let g_slug = &gen.display_slug;
+        let s_ident = &sol.source.sig.ident;
+        let s_slug = &sol.display_slug;
+        let f_ident = Ident::new(format!("f_{}_{}_{}", part_indicator, g_slug, s_slug).as_str(), Span::call_site());
+        (g_ident, s_ident, f_ident)
+    }).collect()
+}
+
+fn gen_composed_labels<'a>(solns: impl Iterator<Item = (&'a AocGeneratorData<'a>, &'a AocSolverData<'a>)>) -> Vec<String> {
+    solns.map(|(gen, sol)| {
+        let g_slug = &gen.display_slug.to_string();
+        let s_slug = &sol.display_slug.to_string();
+        let label = format!("{} / {}", g_slug, s_slug);
+        label
+    }).collect()
+}
+
 fn agg_to_solution_lists_mod(agg_result: &AocSolutionsAggregation, res_type: &Type, mod_name: &Ident ) -> proc_macro2::TokenStream {
-    let p1_data: Vec<(&Ident, &Ident, Ident)> = agg_result
-        .p1_composed_solns()
-        .map(|(gen, sol)| {
-            let g_ident = &gen.source.sig.ident;
-            let g_slug = &gen.display_slug;
-            let s_ident = &sol.source.sig.ident;
-            let s_slug = &sol.display_slug;
-            let f_ident = Ident::new(format!("f_p1_{}_{}", g_slug, s_slug).as_str(), Span::call_site());
-            (g_ident, s_ident, f_ident)
-        }).collect();
+    let p1_data: Vec<(&Ident, &Ident, Ident)> = gen_idents_from_solns("p1", agg_result.p1_composed_solns());
 
     let p1_fn_idents: Vec<&Ident> = p1_data.iter().map(|(_, _, f)| f).collect();
     let p1_gen_idents: Vec<&Ident> = p1_data.iter().map(|(g, _, _)| *g).collect();
     let p1_solver_idents: Vec<&Ident> = p1_data.iter().map(|(_, s, _)| *s).collect();
-    let p1_len = p1_data.len();
 
-    let p2_data: Vec<(&Ident, &Ident, Ident)> = agg_result
-        .p2_composed_solns()
-        .map(|(gen, sol)| {
-            let g_ident = &gen.source.sig.ident;
-            let g_slug = &gen.display_slug;
-            let s_ident = &sol.source.sig.ident;
-            let s_slug = &sol.display_slug;
-            let f_ident = Ident::new(format!("f_p2_{}_{}", g_slug, s_slug).as_str(), Span::call_site());
-            (g_ident, s_ident, f_ident)
-        }).collect();
+    let mut p1_labels = gen_composed_labels(agg_result.p1_composed_solns());
+    let mut p1_impls = p1_fn_idents.clone();
+    p1_impls.extend(agg_result.p1_user_solns().map(|sln| &sln.source.sig.ident));
+    p1_labels.extend(agg_result.p1_user_solns().map(|sln| sln.display_slug.to_string()));
+    let p1_len = p1_impls.len();
+
+    let p2_data: Vec<(&Ident, &Ident, Ident)> = gen_idents_from_solns("p2", agg_result.p2_composed_solns());
 
     let p2_fn_idents: Vec<&Ident> = p2_data.iter().map(|(_, _, f)| f).collect();
     let p2_gen_idents: Vec<&Ident> = p2_data.iter().map(|(g, _, _)| *g).collect();
     let p2_solver_idents: Vec<&Ident> = p2_data.iter().map(|(_, s, _)| *s).collect();
-    let p2_len = p2_data.len();
-    
+
+    let mut p2_labels = gen_composed_labels(agg_result.p2_composed_solns());
+    let mut p2_impls = p2_fn_idents.clone();
+    p2_labels.extend(agg_result.p2_user_solns().map(|sln| sln.display_slug.to_string()));
+    p2_impls.extend(agg_result.p2_user_solns().map(|sln| &sln.source.sig.ident));
+    let p2_len = p2_impls.len();
 
     if p1_data.len() == 0 && p2_data.len() == 0 {
         let err = agg_result.generators.keys().map(|k| {
@@ -316,16 +327,17 @@ fn agg_to_solution_lists_mod(agg_result: &AocSolutionsAggregation, res_type: &Ty
         return err;
     }
 
-    
-
     quote! {
         mod _gen_lists {
             use super::#mod_name::*;
 
+            pub const P1_LABELS: [&str; #p1_len] = [ #(#p1_labels),* ];
+            pub const P2_LABELS: [&str; #p2_len] = [ #(#p2_labels),* ];
+
             #(pub fn #p1_fn_idents(input: &str) -> #res_type { #p1_solver_idents(#p1_gen_idents(input)) })*
             #(pub fn #p2_fn_idents(input: &str) -> #res_type { #p2_solver_idents(#p2_gen_idents(input)) })*
-            pub const P1_SOLUTIONS: [for<'r> fn(&'r str) -> #res_type; #p1_len] = [ #(#p1_fn_idents),* ];
-            pub const P2_SOLUTIONS: [for<'r> fn(&'r str) -> #res_type; #p2_len] = [ #(#p2_fn_idents),* ];
+            pub const P1_SOLUTIONS: [for<'r> fn(&'r str) -> #res_type; #p1_len] = [ #(#p1_impls),* ];
+            pub const P2_SOLUTIONS: [for<'r> fn(&'r str) -> #res_type; #p2_len] = [ #(#p2_impls),* ];
         }
     }
 }
@@ -338,7 +350,8 @@ fn gen_main() -> proc_macro2::TokenStream {
             let p2len = _gen_lists::P2_SOLUTIONS.len();
             if p1len > 0 {
                 let solution_p1 = _gen_lists::P1_SOLUTIONS[0](AOC_RAW_INPUT);
-                println!("Part 1 / {} Solution: {}", "", solution_p1);
+                let label = _gen_lists::P1_LABELS[0];
+                println!("Part 1, {} Solution: {}", label, solution_p1);
                 if p1len > 1 {
                     println!("Checking alternative Part 1 solutions...");
                     for (idx, solver) in _gen_lists::P1_SOLUTIONS.iter().enumerate().skip(1) {
@@ -355,7 +368,8 @@ fn gen_main() -> proc_macro2::TokenStream {
             }
             if p2len > 0 {
                 let solution_p2 = _gen_lists::P2_SOLUTIONS[0](AOC_RAW_INPUT);
-                println!("Part 2 / {} Solution: {}", "", solution_p2);
+                let label = _gen_lists::P2_LABELS[0];
+                println!("Part 2 / {} Solution: {}", label, solution_p2);
                 if p2len > 1 {
                     println!("Checking alternative Part 2 solutions...");
                     for (idx, solver) in _gen_lists::P2_SOLUTIONS.iter().enumerate().skip(1) {
