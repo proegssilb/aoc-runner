@@ -1,4 +1,4 @@
-use std::{collections::HashMap};
+use std::{collections::HashMap, path::Path};
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
@@ -433,17 +433,12 @@ fn agg_to_solution_lists_mod(agg_result: &AocSolutionsAggregation, res_type: &Ty
 }
 
 fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
-    let inputs_path = "../input/2022";
-
-    let input_file = format!("{}/{}.txt", inputs_path, day_num);
-
-    println!("Current manifest dir: {}", std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default());
-    println!("Cargo env vars set: {}", std::env::vars()
-        .filter(|(k, _)| k.starts_with("CARGO"))
-        .map(|(k, _)| k)
-        .reduce(|a, b| a + ", " + &b)
-        .unwrap_or_default()
-    );
+    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
+    let inputs_path = "input/2022";
+    let input_file = format!("{}.txt", day_num);
+    let input_file_path = Path::new(&manifest_dir).join(inputs_path).join(input_file);
+    let input_file_cow = input_file_path.to_string_lossy();
+    let input_file = input_file_cow.as_ref();
 
     quote! {
         const AOC_RAW_INPUT: &str = include_str!(#input_file);
@@ -487,8 +482,30 @@ fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
                 }
             }
             
-            // println!(" ---- Benches ----- ");
-            // run_benches();
+            println!(" ---- Quick Benches ----- ");
+            bench_quick::run_benches();
+        }
+    }
+}
+
+fn gen_microbench() -> proc_macro2::TokenStream {
+    quote! {
+        mod bench_quick {
+            use std::time::Duration;
+            use microbench as mb;
+
+            pub fn run_benches() {
+                let mb_opts = mb::Options::default().time(Duration::from_secs(1));
+
+                for (idx, solver) in super::_gen_lists::P1_SOLUTIONS.iter().enumerate() {
+                    let label = format!("Part 1 - {}", super::_gen_lists::P1_LABELS[idx]);
+                    mb::bench(&mb_opts, &label, || solver(mb::retain(super::AOC_RAW_INPUT)))
+                }
+                for (idx, solver) in super::_gen_lists::P2_SOLUTIONS.iter().enumerate() {
+                    let label = format!("Part 2 - {}", super::_gen_lists::P2_LABELS[idx]);
+                    mb::bench(&mb_opts, &label, || solver( mb::retain(super::AOC_RAW_INPUT)))
+                }
+            }
         }
     }
 }
@@ -512,6 +529,7 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
     let mut item_ts = item.into_token_stream();
 
     item_ts.extend(mod_extension);
+    item_ts.extend(gen_microbench());
     item_ts.extend(gen_main(macro_args.day_num));
 
     item_ts.into()
