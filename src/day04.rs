@@ -7,8 +7,6 @@ use aoc_runner_macros::{solver, generator, aoc};
 // use pprof::criterion::{PProfProfiler, Output};
 // use pprof::flamegraph::Options as FGOptions;
 
-// use microbench::{Options, retain, bench};
-
 type DataLine = (u16, u16, u16, u16);
 type DataLine2 = u64;
 
@@ -190,19 +188,6 @@ mod test {
 
 // Auto-Genned Benches ----------------------------------------------
 
-// Microbench
-
-// fn run_benches() {
-//     let options = Options::default().time(Duration::from_secs(5));
-// 
-//     bench(&options, "Part 1 - tuple_parse / tuple_cmp", || _gen_lists::p1_1(retain(AOC_RAW_INPUT)) );
-//     bench(&options, "Part 1 - tuple_parse / tuple_bitbang", || _gen_lists::p1_2(retain(AOC_RAW_INPUT)) );
-//     bench(&options, "Part 1 - tuple_bitbang / tuple_bitbang", || _gen_lists::p1_4(retain(AOC_RAW_INPUT)) );
-//     bench(&options, "Part 1 - uint_bitbang / uint_cmp", || _gen_lists::p1_5(retain(AOC_RAW_INPUT)) );
-//     bench(&options, "Part 2 - tuple_bitbang / tuple_cmp", || _gen_lists::p2_1(retain(AOC_RAW_INPUT)) );
-//     bench(&options, "Part 2 - uint_bitbang / uint_cmp", || _gen_lists::p2_2(retain(AOC_RAW_INPUT)) );
-// }
-
 // Criterion
 
 // fn bench(c: &mut Criterion) {
@@ -230,6 +215,5 @@ mod test {
 
 // criterion_main!(benches);
 
-// Auto-Genned Main ------------------------------------------------
 
 
