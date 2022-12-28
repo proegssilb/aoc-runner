@@ -61,6 +61,12 @@ struct AocSolutionArgs {
     display_slug: Ident,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+struct AocMacroArgs {
+    day_num: u32,
+    output_type: Type,
+}
+
 impl Parse for AocPart {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let ident: Ident = input.parse()?;
@@ -100,6 +106,30 @@ impl Parse for AocSolutionArgs {
         input.parse::<Comma>()?;
         let slug: Ident = input.parse()?;
         Ok(AocSolutionArgs { problem_part: part, display_slug: slug })
+    }
+}
+
+impl Parse for AocMacroArgs {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let day_ident: Ident = input.parse()?;
+        input.parse::<Comma>()?;
+        let output_type: Type = input.parse()?;
+
+        let day_part = day_ident.to_string();
+        let day_part = day_part.strip_prefix("day").unwrap_or(&day_part);
+        let day_part = day_part.strip_prefix("d").unwrap_or(&day_part);
+        let day_num: u32 = day_part.parse().or_else(|a| {
+            let msg = format!("Could not parse number from day indicator. Parsing error:\n{}", a);
+            let e = syn::Error::new(day_ident.span(), msg);
+            return Err(e);
+        })?;
+
+        if day_num < 1 || day_num > 25 {
+            let e = syn::Error::new(day_ident.span(), "Day number is out of range of 1-25");
+            return Err(e);
+        }
+
+        Ok(AocMacroArgs {output_type, day_num})
     }
 }
 
@@ -342,10 +372,24 @@ fn agg_to_solution_lists_mod(agg_result: &AocSolutionsAggregation, res_type: &Ty
     }
 }
 
-fn gen_main() -> proc_macro2::TokenStream {
+fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
+    let inputs_path = "../input/2022";
+
+    let input_file = format!("{}/{}.txt", inputs_path, day_num);
+
+    println!("Current manifest dir: {}", std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default());
+    println!("Cargo env vars set: {}", std::env::vars()
+        .filter(|(k, _)| k.starts_with("CARGO"))
+        .map(|(k, _)| k)
+        .reduce(|a, b| a + ", " + &b)
+        .unwrap_or_default()
+    );
+
     quote! {
+        const AOC_RAW_INPUT: &str = include_str!(#input_file);
+
         fn main() {
-            //println!("## AOC 2022, Day 4 ----------");
+            println!("## AOC 2022, Day {} ----------", #day_num);
             let p1len = _gen_lists::P1_SOLUTIONS.len();
             let p2len = _gen_lists::P2_SOLUTIONS.len();
             if p1len > 0 {
@@ -396,7 +440,7 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
     let item = parse_macro_input!(item as ItemMod);
     let mod_name = &item.ident;
 
-    let output_type = parse_macro_input!(args as Type);
+    let macro_args = parse_macro_input!(args as AocMacroArgs);
     
     let agg_result = match discover_mod_contents(&item) {
         Ok(data) => data,
@@ -405,12 +449,12 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
         }
     };
 
-    let mod_extension = agg_to_solution_lists_mod(&agg_result, &output_type, mod_name);
+    let mod_extension = agg_to_solution_lists_mod(&agg_result, &macro_args.output_type, mod_name);
     
     let mut item_ts = item.into_token_stream();
 
     item_ts.extend(mod_extension);
-    item_ts.extend(gen_main());
+    item_ts.extend(gen_main(macro_args.day_num));
 
     item_ts.into()
 }

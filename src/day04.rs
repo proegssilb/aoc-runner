@@ -29,7 +29,7 @@ pub fn u16_to_u64_array_assign(xs: &[u16; 4]) -> u64 {
     u64::from_be_bytes([a, b, c, d, e, f, g, h])
 }
 
-#[aoc(i32)]
+#[aoc(day04, i32)]
 pub mod solutions {
     use aoc_runner_macros::solution;
 
@@ -255,4 +255,4 @@ fn aoc_test() {
 
 // Auto-Genned Main ------------------------------------------------
 
-const AOC_RAW_INPUT: &str = include_str!("../input/2022/4.txt");
+
