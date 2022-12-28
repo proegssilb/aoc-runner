@@ -463,8 +463,7 @@ fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
                         if solution == solution_p1 {
                             print!("✅");
                         } else {
-                            println!("");
-                            println!("Solver dispute: #{} found {}", idx, solution);
+                            println!("\nSolver {} found {}", _gen_lists::P1_LABELS[idx], solution);
                         }
                     }
                     println!("");
@@ -473,7 +472,7 @@ fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
             if p2len > 0 {
                 let solution_p2 = _gen_lists::P2_SOLUTIONS[0](AOC_RAW_INPUT);
                 let label = _gen_lists::P2_LABELS[0];
-                println!("Part 2 / {} Solution: {}", label, solution_p2);
+                println!("Part 2, {} Solution: {}", label, solution_p2);
                 if p2len > 1 {
                     println!("Checking alternative Part 2 solutions...");
                     for (idx, solver) in _gen_lists::P2_SOLUTIONS.iter().enumerate().skip(1) {
@@ -481,8 +480,7 @@ fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
                         if solution == solution_p2 {
                             print!("✅");
                         } else {
-                            println!("");
-                            println!("Solver dispute: #{} found {}", idx, solution);
+                            println!("\nSolver {} found {}", _gen_lists::P2_LABELS[idx], solution);
                         }
                     }
                     println!("");
