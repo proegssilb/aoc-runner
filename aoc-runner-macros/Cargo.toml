@@ -11,4 +11,4 @@ anyhow = { version = "1.0.70"}
 proc-macro2 = { version = "1.0.56", features = ["span-locations"] }
 quote = "1.0.26"
 syn = { version = "2.0.15", features = ["full", "extra-traits", "fold", "visit", "visit-mut", "parsing", "proc-macro"] }
-thiserror = "1.0.38"
+thiserror = "1.0.40"
