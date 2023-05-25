@@ -2,6 +2,7 @@
 # will have compiled files and executables
 /target/
 /aoc-runner-macros/target/
+!/input/2022/4.txt
 /input
 
 # Remove Cargo.lock from gitignore if creating an executable, leave it for libraries
