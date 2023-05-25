@@ -325,7 +325,7 @@ fn discover_mod_contents(module: &ItemMod) -> syn::Result<AocSolutionsAggregatio
         match mod_item {
             Item::Fn(fn_data) => {
                 for attr in fn_data.attrs.iter() {
-                    match attr.path.get_ident().map(|id| id.to_string()).as_deref() {
+                    match attr.path().get_ident().map(|id| id.to_string()).as_deref() {
                         Some("generator") => {
                             let args = attr.parse_args::<AocGeneratorArgs>()?;
                             let data = AocGeneratorData::new(args, fn_data)?;
