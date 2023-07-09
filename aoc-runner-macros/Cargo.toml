@@ -8,7 +8,7 @@ proc-macro = true
 
 [dependencies]
 anyhow = { version = "1.0.71"}
-proc-macro2 = { version = "1.0.63", features = ["span-locations"] }
+proc-macro2 = { version = "1.0.64", features = ["span-locations"] }
 quote = "1.0.29"
 syn = { version = "2.0.23", features = ["full", "extra-traits", "fold", "visit", "visit-mut", "parsing", "proc-macro"] }
 thiserror = "1.0.43"
