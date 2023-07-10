@@ -3,4 +3,10 @@
   "extends": [
     "config:base"
   ]
+  "packageRules": [
+    {
+      "matchPackagePatterns": "^criterion|^pprof",
+      "groupName": ["criterion & co."]
+    }
+  ]
 }
