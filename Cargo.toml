@@ -15,7 +15,7 @@ clap = { version = "4.3.19", features = ["derive", "env", "unicode"] }
 criterion = "0.5.1"
 microbench = "0.5.0"
 plotters = "0.3.5"
-pprof = { version = "0.12.0", features = ["criterion", "flamegraph"] }
+pprof = { version = "0.12.1", features = ["criterion", "flamegraph"] }
 thiserror = "1.0.44"
 
 [[bench]]
