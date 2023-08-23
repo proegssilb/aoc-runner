@@ -11,7 +11,7 @@ path = "src/day04.rs"
 
 [dependencies]
 aoc-runner-macros = { path = "./aoc-runner-macros" }
-clap = { version = "4.3.23", features = ["derive", "env", "unicode"] }
+clap = { version = "4.3.24", features = ["derive", "env", "unicode"] }
 criterion = "0.5.1"
 microbench = "0.5.0"
 plotters = "0.3.5"
