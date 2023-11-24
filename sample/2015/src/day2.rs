@@ -35,7 +35,7 @@ pub mod solutions {
     pub fn solve_part1_for(input: Vec<Gift>) -> u32 {
         let mut sum = 0;
 
-        for &(l, w, h) in input {
+        for (l, w, h) in input {
             let (s1, s2) = smallest_side((l, w, h));
 
             sum += 2 * l * w + 2 * w * h + 2 * h * l + s1 * s2;
