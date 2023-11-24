@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./aoc-zen-runner-macros/Cargo.toml"
+    ]
+}

@@ -1,8 +1,6 @@
-extern crate microbench;
-
 use std::cmp::Ordering;
 
-use aoc_runner_macros::{solver, generator, aoc};
+use aoc_zen_runner_macros::{solver, generator, aoc, solution};
 
 type DataLine = (u16, u16, u16, u16);
 type DataLine2 = u64;
@@ -24,10 +22,8 @@ pub fn u16_to_u64_array_assign(xs: &[u16; 4]) -> u64 {
     u64::from_be_bytes([a, b, c, d, e, f, g, h])
 }
 
-#[aoc(day04, i32)]
+#[aoc(day04)]
 pub mod solutions {
-    use aoc_runner_macros::solution;
-
     use super::*;
 
     // Generators -------------------------------------------------------

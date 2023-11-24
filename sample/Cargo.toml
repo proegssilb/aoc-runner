@@ -1,5 +1,8 @@
 [workspace]
 resolver = "2"
+
 members = [
-    "aoc-zen-runner-macros",
-    ]
+    "2015",
+    "2022"
+]
+
