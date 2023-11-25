@@ -49,8 +49,8 @@ pub mod solutions {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::solutions::*;
+    use super::*;
 
     #[test]
     fn test_find_error() {

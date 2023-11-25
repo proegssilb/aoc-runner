@@ -21,7 +21,7 @@ pub type Round = (GameThrow, GameThrow);
 #[aoc(2022, day02)]
 pub mod solutions {
     use super::*;
-    
+
     #[generator(bytesmatch)]
     pub fn input_generator(input: &str) -> Vec<RoundInput> {
         let mut results: Vec<RoundInput> = Vec::new();

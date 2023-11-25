@@ -147,5 +147,4 @@ pub mod solutions {
 
         result
     }
-
 }
