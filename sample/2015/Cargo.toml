@@ -1,0 +1,35 @@
+[package]
+name = "advent-of-code-2015"
+version = "0.1.0"
+authors = ["Grégory Obanos <gregory.obanos@gmail.com>"]
+edition = "2021"
+
+[[bin]]
+name = "day1"
+path = "src/day1.rs"
+
+[[bin]]
+name = "day2"
+path = "src/day2.rs"
+
+[[bin]]
+name = "day3"
+path = "src/day3.rs"
+
+[[bin]]
+name = "day4"
+path = "src/day4.rs"
+
+[[bin]]
+name = "day5"
+path = "src/day5.rs"
+
+[lib]
+bench = false
+
+[dependencies]
+rust-crypto = "0.2.36"
+aoc-zen-runner-macros = {path = "../../aoc-zen-runner-macros"}
+microbench = "0.5.0"
+criterion = "0.5.1"
+pprof = { version = "0.13.0", features = ["flamegraph", "protobuf", "criterion"] }

@@ -1,0 +1,43 @@
+[package]
+name = "aoc2022"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+bench = false
+
+[[bin]]
+name = "day1"
+path = "src/day1.rs"
+
+[[bin]]
+name = "day2"
+path = "src/day2.rs"
+
+[[bin]]
+name = "day3"
+path = "src/day3.rs"
+
+[[bin]]
+name = "day4"
+path = "src/day4.rs"
+
+[[bin]]
+name = "day5"
+path = "src/day5.rs"
+
+[dependencies]
+aoc-zen-runner-macros = {path = "../../aoc-zen-runner-macros"}
+microbench = "0.5.0"
+criterion = "0.5.1"
+pprof = { version = "0.13.0", features = ["flamegraph", "protobuf", "criterion"] }
+bit-set = "0.5.3"
+grid = "0.9.0"
+gridly_grids = "0.5.0"
+itertools = "0.10.5"
+petgraph = "0.6.2"
+rayon = "1.6.1"
+regex = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.89"
+termion = "2.0.1"
