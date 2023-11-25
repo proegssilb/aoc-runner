@@ -7,11 +7,11 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-anyhow = { version = "1.0.71"}
-proc-macro2 = { version = "1.0.64", features = ["span-locations"] }
-quote = "1.0.29"
-syn = { version = "2.0.25", features = ["full", "extra-traits", "fold", "visit", "visit-mut", "parsing", "proc-macro"] }
-thiserror = "1.0.43"
+anyhow = { version = "1.0.75"}
+proc-macro2 = { version = "1.0.69", features = ["span-locations"] }
+quote = "1.0.33"
+syn = { version = "2.0.39", features = ["full", "extra-traits", "fold", "visit", "visit-mut", "parsing", "proc-macro"] }
+thiserror = "1.0.50"
 microbench = "0.5.0"
 num-format = { version = "0.4.4", features = ["with-system-locale"] }
 criterion =  { version = "0.4.0", features = ["rayon", "plotters", "cargo_bench_support", "html_reports"]}
