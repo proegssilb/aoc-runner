@@ -1,8 +1,12 @@
 use std::collections::HashMap;
 
-use syn::{Type, ItemMod, Item};
+use syn::{Item, ItemMod, Type};
 
-use crate::{domain::{AocSolutionData, AocGeneratorData, AocSolverData}, parser::{genargs::AocGeneratorArgs, solverargs::AocSolverArgs, solutionargs::AocSolutionArgs}, partflag::AocPart};
+use crate::{
+    domain::{AocGeneratorData, AocSolutionData, AocSolverData},
+    parser::{genargs::AocGeneratorArgs, solutionargs::AocSolutionArgs, solverargs::AocSolverArgs},
+    partflag::AocPart,
+};
 
 const SOLUTION_TYPE_MISMATCH: &str = "All solvers and solutions for a given day and part must return the same type. This solver does not match the first solution type detected.";
 
@@ -18,11 +22,11 @@ pub struct AocSolutionsAggregation<'a> {
 
 impl<'a> AocSolutionsAggregation<'a> {
     pub fn new() -> Self {
-        AocSolutionsAggregation { 
+        AocSolutionsAggregation {
             solutions_p1: Vec::new(),
-            solutions_p2: Vec::new(), 
-            generators: HashMap::new(), 
-            solvers_p1: HashMap::new(), 
+            solutions_p2: Vec::new(),
+            generators: HashMap::new(),
+            solvers_p1: HashMap::new(),
             solvers_p2: HashMap::new(),
             p1_result_type: None,
             p2_result_type: None,
@@ -43,9 +47,10 @@ impl<'a> AocSolutionsAggregation<'a> {
                 println!("WARNING: Generator type has no corresponding solvers:\n{:#?}", &ty);
                 vec![].into_iter()
             } else {
-                gens.iter().flat_map(|g| {
-                    self.solvers_p1.get(ty).unwrap().iter().map(move |s| (g, s))
-                }).collect::<Vec<(&AocGeneratorData<'a>, &AocSolverData<'a>)>>().into_iter()
+                gens.iter()
+                    .flat_map(|g| self.solvers_p1.get(ty).unwrap().iter().map(move |s| (g, s)))
+                    .collect::<Vec<(&AocGeneratorData<'a>, &AocSolverData<'a>)>>()
+                    .into_iter()
             }
         })
     }
@@ -56,9 +61,10 @@ impl<'a> AocSolutionsAggregation<'a> {
                 println!("WARNING: Generator type has no corresponding solvers:\n{:#?}", &ty);
                 vec![].into_iter()
             } else {
-                gens.iter().flat_map(|g| {
-                    self.solvers_p2.get(ty).unwrap().iter().map(move |s| (g, s))
-                }).collect::<Vec<(&AocGeneratorData<'a>, &AocSolverData<'a>)>>().into_iter()
+                gens.iter()
+                    .flat_map(|g| self.solvers_p2.get(ty).unwrap().iter().map(move |s| (g, s)))
+                    .collect::<Vec<(&AocGeneratorData<'a>, &AocSolverData<'a>)>>()
+                    .into_iter()
             }
         })
     }
@@ -75,7 +81,9 @@ pub fn discover_mod_contents(module: &ItemMod) -> syn::Result<AocSolutionsAggreg
     let mut p1_solution_type: Option<&Type> = None;
     let mut p2_solution_type: Option<&Type> = None;
 
-    let Some((_, contents)) = &module.content else { return Ok(AocSolutionsAggregation::new()); };
+    let Some((_, contents)) = &module.content else {
+        return Ok(AocSolutionsAggregation::new());
+    };
     for mod_item in contents.iter() {
         match mod_item {
             Item::Fn(fn_data) => {
@@ -85,28 +93,28 @@ pub fn discover_mod_contents(module: &ItemMod) -> syn::Result<AocSolutionsAggreg
                             let args = attr.parse_args::<AocGeneratorArgs>()?;
                             let data = AocGeneratorData::new(args, fn_data)?;
                             generators.entry(data.gen_type).or_default().push(data);
-                        },
+                        }
                         Some("solver") => {
                             let args = attr.parse_args::<AocSolverArgs>()?;
                             let data = AocSolverData::new(args, fn_data)?;
 
                             match data.problem_part {
-                                AocPart::Part1 => { 
+                                AocPart::Part1 => {
                                     if p1_solution_type.is_some_and(|t| t != data.solution_type) {
                                         errs.push(syn::Error::new(data.display_slug.span(), SOLUTION_TYPE_MISMATCH))
                                     }
                                     p1_solution_type = Some(data.solution_type);
-                                    solvers_p1.entry(data.input_type).or_default().push(data); 
+                                    solvers_p1.entry(data.input_type).or_default().push(data);
                                 }
-                                AocPart::Part2 => { 
+                                AocPart::Part2 => {
                                     if p2_solution_type.is_some_and(|t| t != data.solution_type) {
                                         errs.push(syn::Error::new(data.display_slug.span(), SOLUTION_TYPE_MISMATCH))
                                     }
                                     p2_solution_type = Some(data.solution_type);
-                                    solvers_p2.entry(data.input_type).or_default().push(data); 
+                                    solvers_p2.entry(data.input_type).or_default().push(data);
                                 }
                             }
-                        },
+                        }
                         Some("solution") => {
                             let args = attr.parse_args::<AocSolutionArgs>()?;
                             let data = AocSolutionData::new(args, fn_data)?;
@@ -123,19 +131,36 @@ pub fn discover_mod_contents(module: &ItemMod) -> syn::Result<AocSolutionsAggreg
                                 p2_solution_type = Some(data.solution_type);
                                 solutions_p2.push(data);
                             }
-                        },
-                        Some(_) => { continue; },
-                        None => { continue; },
+                        }
+                        Some(_) => {
+                            continue;
+                        }
+                        None => {
+                            continue;
+                        }
                     }
                 }
-            },
-            _ => { continue; }
+            }
+            _ => {
+                continue;
+            }
         }
     }
 
-    if let Some(combined) = errs.into_iter().reduce(|mut x, y| { x.combine(y); x }) {
+    if let Some(combined) = errs.into_iter().reduce(|mut x, y| {
+        x.combine(y);
+        x
+    }) {
         return Err(combined);
     }
 
-    Ok(AocSolutionsAggregation { solutions_p1: solutions_p1, solutions_p2: solutions_p2, generators: generators, solvers_p1: solvers_p1, solvers_p2: solvers_p2, p1_result_type: p1_solution_type, p2_result_type: p2_solution_type })
+    Ok(AocSolutionsAggregation {
+        solutions_p1: solutions_p1,
+        solutions_p2: solutions_p2,
+        generators: generators,
+        solvers_p1: solvers_p1,
+        solvers_p2: solvers_p2,
+        p1_result_type: p1_solution_type,
+        p2_result_type: p2_solution_type,
+    })
 }

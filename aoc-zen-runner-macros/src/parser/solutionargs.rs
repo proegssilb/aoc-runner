@@ -14,6 +14,9 @@ impl Parse for AocSolutionArgs {
         let part: AocPart = input.parse()?;
         input.parse::<Comma>()?;
         let slug: Ident = input.parse()?;
-        Ok(AocSolutionArgs { problem_part: part, display_slug: slug })
+        Ok(AocSolutionArgs {
+            problem_part: part,
+            display_slug: slug,
+        })
     }
 }

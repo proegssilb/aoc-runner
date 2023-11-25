@@ -1,7 +1,10 @@
 use proc_macro2::Ident;
-use syn::{Type, ItemFn, ReturnType, spanned::Spanned, Error};
+use syn::{spanned::Spanned, Error, ItemFn, ReturnType, Type};
 
-use crate::{partflag::AocPart, parser::{genargs::AocGeneratorArgs, solverargs::AocSolverArgs, solutionargs::AocSolutionArgs}};
+use crate::{
+    parser::{genargs::AocGeneratorArgs, solutionargs::AocSolutionArgs, solverargs::AocSolverArgs},
+    partflag::AocPart,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct AocGeneratorData<'a> {
@@ -13,13 +16,16 @@ pub struct AocGeneratorData<'a> {
 impl<'a> AocGeneratorData<'a> {
     pub fn new(args: AocGeneratorArgs, source_fn: &'a ItemFn) -> syn::Result<AocGeneratorData<'a>> {
         let ReturnType::Type(_, ty_data) = &source_fn.sig.output else {
-            let e = Error::new(source_fn.sig.output.span(), "Generators must have a return type that can be passed to a solver function.");
+            let e = Error::new(
+                source_fn.sig.output.span(),
+                "Generators must have a return type that can be passed to a solver function.",
+            );
             return Err(e);
         };
-        Ok(AocGeneratorData { 
-            display_slug: args.display_slug, 
-            gen_type: ty_data.as_ref(), 
-            source: &source_fn 
+        Ok(AocGeneratorData {
+            display_slug: args.display_slug,
+            gen_type: ty_data.as_ref(),
+            source: &source_fn,
         })
     }
 }
@@ -51,10 +57,10 @@ impl<'a> AocSolverData<'a> {
                 return Err(e);
             };
             let solve_type = &solve_type.ty;
-            return Ok(AocSolverData { 
-                problem_part: args.problem_part, 
-                display_slug: args.display_slug, 
-                input_type: solve_type.as_ref(), 
+            return Ok(AocSolverData {
+                problem_part: args.problem_part,
+                display_slug: args.display_slug,
+                input_type: solve_type.as_ref(),
                 source: source_fn,
                 solution_type: &solution_type_box,
             });

@@ -1,12 +1,12 @@
+use aoc_zen_runner_macros::{aoc, solution};
 use crypto::digest::Digest;
 use crypto::md5::Md5;
 use std::u32;
-use aoc_zen_runner_macros::{aoc, solution};
 
 #[aoc(2015, day04)]
 pub mod solutions {
     use super::*;
-    
+
     #[solution(part1, crypto_md5)]
     pub fn part1(secret: &str) -> u32 {
         solver(secret, |hash| hash[0..2] == [0; 2] && (hash[2] & 0xF0) == 0)
@@ -30,7 +30,8 @@ pub mod solutions {
                 hasher.result(&mut hash);
 
                 (i, is_valid(&hash))
-            }).find(|&(_, b)| b)
+            })
+            .find(|&(_, b)| b)
             .map(|(i, _)| i)
             .expect("result is bigger than u32")
     }

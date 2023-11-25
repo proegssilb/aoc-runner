@@ -29,11 +29,13 @@ pub mod solutions {
         for (i, c) in input.as_bytes().iter().enumerate() {
             match c {
                 b'(' => sum += 1,
-                b')' => if let Some(s) = sum.checked_sub(1) {
-                    sum = s;
-                } else {
-                    return i + 1;
-                },
+                b')' => {
+                    if let Some(s) = sum.checked_sub(1) {
+                        sum = s;
+                    } else {
+                        return i + 1;
+                    }
+                }
                 _ => unreachable!(),
             }
         }

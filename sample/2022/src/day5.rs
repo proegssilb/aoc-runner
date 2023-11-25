@@ -97,19 +97,14 @@ fn run_arrangement(board: &mut Board, moves: &[MoveInfo], do_reverse: bool) {
         }
         let mut i = {
             let stack = board.get_mut(mov.source_stack as usize).unwrap();
-            let mut xs = stack
-                .drain((stack.len() - mov.crate_count as usize)..)
-                .collect_vec();
+            let mut xs = stack.drain((stack.len() - mov.crate_count as usize)..).collect_vec();
             if do_reverse {
                 xs.reverse();
             }
             xs
         };
         {
-            board
-                .get_mut(mov.dest_stack as usize)
-                .unwrap()
-                .append(&mut i);
+            board.get_mut(mov.dest_stack as usize).unwrap().append(&mut i);
         }
         if DEBUG_MOVE {
             println!("Board after move:");
