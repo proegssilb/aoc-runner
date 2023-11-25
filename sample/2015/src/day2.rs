@@ -1,4 +1,4 @@
-use aoc_zen_runner_macros::{solver, generator, aoc, aoc_case};
+use aoc_zen_runner_macros::{aoc, aoc_case, generator, solver};
 
 type Gift = (u32, u32, u32);
 
@@ -12,12 +12,9 @@ pub mod solutions {
             .lines()
             .map(|l| {
                 let mut gift = l.trim().split('x').map(|d| d.parse().unwrap());
-                (
-                    gift.next().unwrap(),
-                    gift.next().unwrap(),
-                    gift.next().unwrap(),
-                )
-            }).collect()
+                (gift.next().unwrap(), gift.next().unwrap(), gift.next().unwrap())
+            })
+            .collect()
     }
 
     #[solver(part1, dotchain)]
@@ -28,7 +25,8 @@ pub mod solutions {
                 let (s1, s2) = smallest_side((l, w, h));
 
                 2 * l * w + 2 * w * h + 2 * h * l + s1 * s2
-            }).sum()
+            })
+            .sum()
     }
 
     #[solver(part1, for_loop)]
@@ -52,7 +50,8 @@ pub mod solutions {
                 let (s1, s2) = smallest_side((l, w, h));
 
                 (s1 + s2) * 2 + l * w * h
-            }).sum()
+            })
+            .sum()
     }
 
     fn smallest_side((l, w, h): Gift) -> (u32, u32) {

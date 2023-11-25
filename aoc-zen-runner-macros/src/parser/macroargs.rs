@@ -1,5 +1,5 @@
 use proc_macro2::Ident;
-use syn::{parse::Parse, Lit, token::Comma};
+use syn::{parse::Parse, token::Comma, Lit};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct AocMacroArgs {
@@ -25,7 +25,10 @@ impl Parse for AocMacroArgs {
         let year_num = if let Lit::Int(li) = year_lit {
             li.base10_parse()?
         } else {
-            let e = syn::Error::new(year_lit.span(), "First argument to `aoc` macro must be the puzzle's year as a number.");
+            let e = syn::Error::new(
+                year_lit.span(),
+                "First argument to `aoc` macro must be the puzzle's year as a number.",
+            );
             return Err(e);
         };
 
@@ -34,6 +37,6 @@ impl Parse for AocMacroArgs {
             return Err(e);
         }
 
-        Ok(AocMacroArgs {year_num, day_num})
+        Ok(AocMacroArgs { year_num, day_num })
     }
 }

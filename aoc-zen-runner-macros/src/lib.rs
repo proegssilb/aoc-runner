@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use aggregate::{AocSolutionsAggregation, discover_mod_contents};
+use aggregate::{discover_mod_contents, AocSolutionsAggregation};
 use domain::{AocGeneratorData, AocSolverData};
 use parser::caseargs::AocCaseArgs;
 use parser::macroargs::AocMacroArgs;
@@ -8,15 +8,15 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
 use quote::ToTokens;
-use syn::Type;
-use syn::{ItemFn, ItemConst};
 use syn::parse_macro_input;
-use syn::{ItemMod, Ident};
+use syn::Type;
+use syn::{Ident, ItemMod};
+use syn::{ItemConst, ItemFn};
 
+mod aggregate;
+mod domain;
 mod parser;
 mod partflag;
-mod domain;
-mod aggregate;
 
 // Flag macros ------------------------------------------------------------
 #[proc_macro_attribute]
@@ -60,7 +60,7 @@ pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
                 let expected_p1 = #exp_p1;
                 let expected_p2 = #exp_p2;
                 let input: #ty = #in_val;
-        
+
                 for p1 in super::_gen_lists::P1_SOLUTIONS {
                     assert_eq!(expected_p1, p1(input));
                 }
@@ -68,46 +68,59 @@ pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
                     assert_eq!(expected_p2, p2(input));
                 }
             }
-        }.into()
+        }
+        .into()
     } else {
         quote! {
             #[test]
             fn #slug() {
                 let expected_p1 = #exp_p1;
                 let input: #ty = #in_val;
-        
+
                 for p1 in _gen_lists::P1_SOLUTIONS {
                     assert_eq!(expected_p1, p1(input));
                 }
             }
-        }.into()
+        }
+        .into()
     }
-    
 }
 
 // AOC --------------------------------------------------------------------
 
-fn gen_idents_from_solns<'a>(part_indicator: &str, solns: impl Iterator<Item = (&'a AocGeneratorData<'a>, &'a AocSolverData<'a>)>) -> Vec<(&'a Ident, &'a Ident, Ident)> {
-    solns.map(|(gen, sol)| {
-        let g_ident = &gen.source.sig.ident;
-        let g_slug = &gen.display_slug;
-        let s_ident = &sol.source.sig.ident;
-        let s_slug = &sol.display_slug;
-        let f_ident = Ident::new(format!("f_{}_{}_{}", part_indicator, g_slug, s_slug).as_str(), Span::call_site());
-        (g_ident, s_ident, f_ident)
-    }).collect()
+fn gen_idents_from_solns<'a>(
+    part_indicator: &str,
+    solns: impl Iterator<Item = (&'a AocGeneratorData<'a>, &'a AocSolverData<'a>)>,
+) -> Vec<(&'a Ident, &'a Ident, Ident)> {
+    solns
+        .map(|(gen, sol)| {
+            let g_ident = &gen.source.sig.ident;
+            let g_slug = &gen.display_slug;
+            let s_ident = &sol.source.sig.ident;
+            let s_slug = &sol.display_slug;
+            let f_ident = Ident::new(
+                format!("f_{}_{}_{}", part_indicator, g_slug, s_slug).as_str(),
+                Span::call_site(),
+            );
+            (g_ident, s_ident, f_ident)
+        })
+        .collect()
 }
 
-fn gen_composed_labels<'a>(solns: impl Iterator<Item = (&'a AocGeneratorData<'a>, &'a AocSolverData<'a>)>) -> Vec<String> {
-    solns.map(|(gen, sol)| {
-        let g_slug = &gen.display_slug.to_string();
-        let s_slug = &sol.display_slug.to_string();
-        let label = format!("{} / {}", g_slug, s_slug);
-        label
-    }).collect()
+fn gen_composed_labels<'a>(
+    solns: impl Iterator<Item = (&'a AocGeneratorData<'a>, &'a AocSolverData<'a>)>,
+) -> Vec<String> {
+    solns
+        .map(|(gen, sol)| {
+            let g_slug = &gen.display_slug.to_string();
+            let s_slug = &sol.display_slug.to_string();
+            let label = format!("{} / {}", g_slug, s_slug);
+            label
+        })
+        .collect()
 }
 
-fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident ) -> proc_macro2::TokenStream {
+fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident) -> proc_macro2::TokenStream {
     let p1_composed_data: Vec<(&Ident, &Ident, Ident)> = gen_idents_from_solns("p1", agg_result.p1_composed_solns());
 
     let p1_fn_idents: Vec<&Ident> = p1_composed_data.iter().map(|(_, _, f)| f).collect();
@@ -118,7 +131,10 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
     let mut p1_impls = p1_fn_idents.clone();
     p1_impls.extend(agg_result.p1_user_solns().map(|sln| &sln.source.sig.ident));
     p1_labels.extend(agg_result.p1_user_solns().map(|sln| sln.display_slug.to_string()));
-    let p1_ret = agg_result.p1_result_type.unwrap_or(&Type::Verbatim(quote!(String))).to_owned();
+    let p1_ret = agg_result
+        .p1_result_type
+        .unwrap_or(&Type::Verbatim(quote!(String)))
+        .to_owned();
     let p1_len = p1_impls.len();
 
     let p2_data: Vec<(&Ident, &Ident, Ident)> = gen_idents_from_solns("p2", agg_result.p2_composed_solns());
@@ -131,7 +147,10 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
     let mut p2_impls = p2_fn_idents.clone();
     p2_labels.extend(agg_result.p2_user_solns().map(|sln| sln.display_slug.to_string()));
     p2_impls.extend(agg_result.p2_user_solns().map(|sln| &sln.source.sig.ident));
-    let p2_ret = agg_result.p2_result_type.unwrap_or(&Type::Verbatim(quote!(String))).to_owned();
+    let p2_ret = agg_result
+        .p2_result_type
+        .unwrap_or(&Type::Verbatim(quote!(String)))
+        .to_owned();
     let p2_len = p2_impls.len();
 
     quote! {
@@ -200,7 +219,7 @@ fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
                     println!("");
                 }
             }
-            
+
             println!(" ---- Quick Benches ----- ");
             bench_quick::run_benches();
         }
@@ -271,7 +290,7 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
     let mod_name = &item.ident;
 
     let macro_args = parse_macro_input!(args as AocMacroArgs);
-    
+
     let agg_result = match discover_mod_contents(&item) {
         Ok(data) => data,
         Err(e) => {
@@ -280,7 +299,7 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let mod_extension = gen_solution_lists_mod(&agg_result, mod_name);
-    
+
     let mut item_ts = item.into_token_stream();
 
     item_ts.extend(mod_extension);

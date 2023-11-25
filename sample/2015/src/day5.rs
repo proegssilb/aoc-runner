@@ -3,7 +3,7 @@ use aoc_zen_runner_macros::{aoc, solution};
 #[aoc(2015, day05)]
 mod solutions {
     use super::*;
-    
+
     // It contains at least three vowels (aeiou only), like aei, xazegov, or aeiouaeiouaeiou.
     pub fn three_vowels(string: &str) -> bool {
         string
@@ -11,27 +11,22 @@ mod solutions {
             .filter(|&c| match c {
                 'a' | 'e' | 'i' | 'o' | 'u' => true,
                 _ => false,
-            }).count()
+            })
+            .count()
             >= 3
     }
 
     // It contains at least one letter that appears twice in a row, like xx, abcdde (dd), or aabbccdd (aa, bb, cc, or dd).
     pub fn twice_in_a_row(string: &str) -> bool {
-        string
-            .chars()
-            .zip(string.chars().skip(1))
-            .any(|(a, b)| a == b)
+        string.chars().zip(string.chars().skip(1)).any(|(a, b)| a == b)
     }
 
     // It does not contain the strings ab, cd, pq, or xy, even if they are part of one of the other requirements.
     pub fn no_forbidden_strings(string: &str) -> bool {
-        string
-            .chars()
-            .zip(string.chars().skip(1))
-            .all(|ab| match ab {
-                ('a', 'b') | ('c', 'd') | ('p', 'q') | ('x', 'y') => false,
-                _ => true,
-            })
+        string.chars().zip(string.chars().skip(1)).all(|ab| match ab {
+            ('a', 'b') | ('c', 'd') | ('p', 'q') | ('x', 'y') => false,
+            _ => true,
+        })
     }
 
     pub fn is_nice(string: &str) -> bool {
@@ -57,10 +52,7 @@ mod solutions {
 
     // It contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa.
     pub fn repeat_separated(string: &str) -> bool {
-        string
-            .chars()
-            .zip(string.chars().skip(2))
-            .any(|(a, b)| a == b)
+        string.chars().zip(string.chars().skip(2)).any(|(a, b)| a == b)
     }
 
     pub fn is_really_nice(string: &str) -> bool {
@@ -135,5 +127,4 @@ mod tests {
         assert!(!is_really_nice("ieodomkazucvgmuy"));
         assert!(!two_pairs("ieodomkazucvgmuy"));
     }
-
 }
