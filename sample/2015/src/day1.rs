@@ -1,12 +1,12 @@
 use aoc_zen_runner_macros::{aoc, solution};
 
-#[aoc(day1)]
+#[aoc(2015, day1)]
 pub mod solutions {
     use super::*;
 
     #[solution(part1, Bytes)]
-    pub fn part1_bytes(input: &[u8]) -> i32 {
-        input.iter().fold(0, |sum, c| match c {
+    pub fn part1_bytes(input: &str) -> i32 {
+        input.as_bytes().iter().fold(0, |sum, c| match c {
             b'(' => sum + 1,
             b')' => sum - 1,
             _ => unreachable!(),
@@ -44,7 +44,7 @@ pub mod solutions {
 
 #[cfg(test)]
 mod tests {
-    use super::{part1_chars as part1, part2};
+    use super::solutions::{part1_chars as part1, part2};
 
     // (()) and ()() both result in floor 0.
     #[test]

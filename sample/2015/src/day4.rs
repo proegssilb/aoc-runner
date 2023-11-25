@@ -3,7 +3,7 @@ use crypto::md5::Md5;
 use std::u32;
 use aoc_zen_runner_macros::{aoc, solution};
 
-#[aoc(day04)]
+#[aoc(2015, day04)]
 pub mod solutions {
     use super::*;
     
@@ -38,7 +38,7 @@ pub mod solutions {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::solutions::*;
 
     #[test]
     // If your secret key is abcdef, the answer is 609043, because the MD5 hash of abcdef609043

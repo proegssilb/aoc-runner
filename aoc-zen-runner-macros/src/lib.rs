@@ -8,6 +8,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
 use quote::ToTokens;
+use syn::Type;
 use syn::{ItemFn, ItemConst};
 use syn::parse_macro_input;
 use syn::{ItemMod, Ident};
@@ -117,6 +118,7 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
     let mut p1_impls = p1_fn_idents.clone();
     p1_impls.extend(agg_result.p1_user_solns().map(|sln| &sln.source.sig.ident));
     p1_labels.extend(agg_result.p1_user_solns().map(|sln| sln.display_slug.to_string()));
+    let p1_ret = agg_result.p1_result_type.unwrap_or(&Type::Verbatim(quote!(String))).to_owned();
     let p1_len = p1_impls.len();
 
     let p2_data: Vec<(&Ident, &Ident, Ident)> = gen_idents_from_solns("p2", agg_result.p2_composed_solns());
@@ -129,6 +131,7 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
     let mut p2_impls = p2_fn_idents.clone();
     p2_labels.extend(agg_result.p2_user_solns().map(|sln| sln.display_slug.to_string()));
     p2_impls.extend(agg_result.p2_user_solns().map(|sln| &sln.source.sig.ident));
+    let p2_ret = agg_result.p2_result_type.unwrap_or(&Type::Verbatim(quote!(String))).to_owned();
     let p2_len = p2_impls.len();
 
     quote! {
@@ -139,17 +142,17 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
             pub const P1_LABELS: [&str; #p1_len] = [ #(#p1_labels),* ];
             pub const P2_LABELS: [&str; #p2_len] = [ #(#p2_labels),* ];
 
-            #(pub fn #p1_fn_idents(input: &str) -> impl Display { #p1_solver_idents(#p1_gen_idents(input)) })*
-            #(pub fn #p2_fn_idents(input: &str) -> impl Display { #p2_solver_idents(#p2_gen_idents(input)) })*
-            pub const P1_SOLUTIONS: [for<'r> fn(&'r str) -> impl Display; #p1_len] = [ #(#p1_impls),* ];
-            pub const P2_SOLUTIONS: [for<'r> fn(&'r str) -> impl Display; #p2_len] = [ #(#p2_impls),* ];
+            #(pub fn #p1_fn_idents(input: &str) -> #p1_ret { #p1_solver_idents(#p1_gen_idents(input)) })*
+            #(pub fn #p2_fn_idents(input: &str) -> #p2_ret { #p2_solver_idents(#p2_gen_idents(input)) })*
+            pub const P1_SOLUTIONS: [for<'r> fn(&'r str) -> #p1_ret; #p1_len] = [ #(#p1_impls),* ];
+            pub const P2_SOLUTIONS: [for<'r> fn(&'r str) -> #p2_ret; #p2_len] = [ #(#p2_impls),* ];
         }
     }
 }
 
-fn gen_main(day_num: u32) -> proc_macro2::TokenStream {
+fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
-    let inputs_path = "input/2022";
+    let inputs_path = format!("input/{}", year_num);
     let input_file = format!("{}.txt", day_num);
     let input_file_path = Path::new(&manifest_dir).join(inputs_path).join(input_file);
     let input_file_cow = input_file_path.to_string_lossy();
@@ -283,7 +286,7 @@ pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
     item_ts.extend(mod_extension);
     item_ts.extend(gen_quick_microbench());
     item_ts.extend(gen_slow_microbench());
-    item_ts.extend(gen_main(macro_args.day_num));
+    item_ts.extend(gen_main(macro_args.year_num, macro_args.day_num));
 
     item_ts.into()
 }

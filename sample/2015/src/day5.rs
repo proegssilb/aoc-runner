@@ -1,11 +1,11 @@
 use aoc_zen_runner_macros::{aoc, solution};
 
-#[aoc(day05)]
+#[aoc(2015, day05)]
 mod solutions {
     use super::*;
     
     // It contains at least three vowels (aeiou only), like aei, xazegov, or aeiouaeiouaeiou.
-    fn three_vowels(string: &str) -> bool {
+    pub fn three_vowels(string: &str) -> bool {
         string
             .chars()
             .filter(|&c| match c {
@@ -16,7 +16,7 @@ mod solutions {
     }
 
     // It contains at least one letter that appears twice in a row, like xx, abcdde (dd), or aabbccdd (aa, bb, cc, or dd).
-    fn twice_in_a_row(string: &str) -> bool {
+    pub fn twice_in_a_row(string: &str) -> bool {
         string
             .chars()
             .zip(string.chars().skip(1))
@@ -24,7 +24,7 @@ mod solutions {
     }
 
     // It does not contain the strings ab, cd, pq, or xy, even if they are part of one of the other requirements.
-    fn no_forbidden_strings(string: &str) -> bool {
+    pub fn no_forbidden_strings(string: &str) -> bool {
         string
             .chars()
             .zip(string.chars().skip(1))
@@ -34,7 +34,7 @@ mod solutions {
             })
     }
 
-    fn is_nice(string: &str) -> bool {
+    pub fn is_nice(string: &str) -> bool {
         three_vowels(string) && twice_in_a_row(string) && no_forbidden_strings(string)
     }
 
@@ -44,7 +44,7 @@ mod solutions {
     }
 
     // It contains a pair of any two letters that appears at least twice in the string without overlapping, like xyxy (xy) or aabcdefgaa (aa), but not like aaa (aa, but it overlaps).
-    fn two_pairs(string: &str) -> bool {
+    pub fn two_pairs(string: &str) -> bool {
         if string.len() < 4 {
             return false;
         }
@@ -56,14 +56,14 @@ mod solutions {
     }
 
     // It contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa.
-    fn repeat_separated(string: &str) -> bool {
+    pub fn repeat_separated(string: &str) -> bool {
         string
             .chars()
             .zip(string.chars().skip(2))
             .any(|(a, b)| a == b)
     }
 
-    fn is_really_nice(string: &str) -> bool {
+    pub fn is_really_nice(string: &str) -> bool {
         two_pairs(string) && repeat_separated(string)
     }
 
@@ -75,7 +75,7 @@ mod solutions {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::solutions::*;
 
     #[test]
     // ugknbfddgicrmopn is nice because it has at least three vowels (u...i...o...), a double letter (...dd...), and none of the disallowed substrings.

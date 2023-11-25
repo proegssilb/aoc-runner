@@ -4,7 +4,7 @@ use aoc_zen_runner_macros::{aoc, solution};
 
 type Position = (i32, i32);
 
-#[aoc(day03)]
+#[aoc(2015, day03)]
 pub mod solutions {
     use super::*;
 
@@ -58,7 +58,7 @@ pub mod solutions {
 
 #[cfg(tests)]
 mod tests {
-    use super::*;
+    use super::solutions::*;
 
     #[test]
     // > delivers presents to 2 houses: one at the starting location, and one to the east.
