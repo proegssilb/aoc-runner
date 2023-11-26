@@ -1,0 +1,19 @@
+[package]
+name = "cargo-aoc-zen-runner"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/proegssilb/aoc-zen-runner"
+license = "Apache-2.0"
+description = "An Advent of Code runner aiming to streamline a variety of repository layouts and tasks."
+
+[lib]
+name = "aoc_zen_runner"
+path = "src/lib.rs"
+
+
+[[bin]]
+name="cargo-aoc"
+path="src/main.rs"
+
+[dependencies]
+clap = { version = "4.4.8", features = ["derive", "cargo", "env", "unicode", "string"] }
