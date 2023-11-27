@@ -1,7 +1,7 @@
 use anyhow::Ok;
-use confy::{store, load};
+use confy::{load, store};
+use serde_derive::{Deserialize, Serialize};
 use thiserror::Error;
-use serde_derive::{Serialize, Deserialize};
 
 #[derive(Error, Debug)]
 enum CredentialStoreError {
@@ -18,7 +18,7 @@ struct CredentialStore {
 
 pub trait CookieStore {
     fn get_session_cookie(&self) -> anyhow::Result<&str>;
-    fn set_session_cookie(&mut self, session: &str)-> anyhow::Result<()>;
+    fn set_session_cookie(&mut self, session: &str) -> anyhow::Result<()>;
 }
 
 pub struct ConfigFileCookieStore {
@@ -27,9 +27,7 @@ pub struct ConfigFileCookieStore {
 
 impl ConfigFileCookieStore {
     pub fn new() -> anyhow::Result<ConfigFileCookieStore> {
-        let mut instance = ConfigFileCookieStore { 
-            config_data: None,
-        };
+        let mut instance = ConfigFileCookieStore { config_data: None };
 
         instance.read_file()?;
 
@@ -59,7 +57,7 @@ impl CookieStore for ConfigFileCookieStore {
         }
     }
 
-    fn set_session_cookie(&mut self, session: &str)-> anyhow::Result<()> {
+    fn set_session_cookie(&mut self, session: &str) -> anyhow::Result<()> {
         self.read_file()?;
 
         let credential_store = &mut self.config_data;
@@ -72,6 +70,5 @@ impl CookieStore for ConfigFileCookieStore {
         self.write_file()?;
 
         Ok(())
-
     }
 }
