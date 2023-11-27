@@ -1,59 +1,25 @@
 // Only used for config files (at the moment)
 //use std::path::PathBuf;
-
-use clap::{Parser, Subcommand};
+use std::io;
+use std::io::BufRead;
 
 use aoc_zen_runner::commands as cmds;
+use aoc_zen_runner::cli::*;
+use clap::Parser;
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Cli {
-    // TODO: Spec out a config file. If we need one.
-    // /// Sets a custom config file
-    // #[arg(short, long, value_name = "FILE")]
-    // config: Option<PathBuf>,
-
-    /// Generate more verbose output
-    #[arg(short, long, action = clap::ArgAction::Count)]
-    verbose: u8,
-
-    #[command(subcommand)]
-    command: Option<Commands>,
+fn stdin_wrapper() -> impl BufRead {
+    io::stdin().lock()
 }
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Log in to the Advent of Code website for input downloading
-    Login,
-
-    /// Download problem inputs from Advent of Code
-    Input,
-
-    /// Do setup work for a given day or year
-    Prep,
-
-    /// Run a specific day's solution
-    Run,
-
-    /// Benchmark your solution code with more precision
-    Bench,
-
-    // /// Generate flamegraphs of CPU time used by your solution code
-    // Flamegraph,
-
-    // /// Run the Coz causal profiler on your solution code
-    // Profile,
-}
-
-fn main() {
+fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::Login) => cmds::login(),
-        Some(Commands::Input) => cmds::input(),
-        Some(Commands::Prep) => cmds::prepare(),
-        Some(Commands::Run) => cmds::run(),
-        Some(Commands::Bench) => cmds::benchmark(),
-        None => cmds::run(),
+        Some(Commands::Login) => cmds::login(stdin_wrapper, cli),
+        Some(Commands::Input) => cmds::input(stdin_wrapper, cli),
+        Some(Commands::Prep) => cmds::prepare(stdin_wrapper, cli),
+        Some(Commands::Run) => cmds::run(stdin_wrapper, cli),
+        Some(Commands::Bench) => cmds::benchmark(stdin_wrapper, cli),
+        None => cmds::run(stdin_wrapper, cli),
     }
 }

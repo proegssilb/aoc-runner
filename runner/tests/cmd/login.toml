@@ -1,0 +1,3 @@
+bin.name = "cargo-aoc"
+args = "login"
+fs.sandbox = true
