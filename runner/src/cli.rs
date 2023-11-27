@@ -7,7 +7,6 @@ pub struct Cli {
     // /// Sets a custom config file
     // #[arg(short, long, value_name = "FILE")]
     // config: Option<PathBuf>,
-
     /// Generate more verbose output
     #[arg(short, long, action = clap::ArgAction::Count)]
     pub verbose: u8,
@@ -32,7 +31,6 @@ pub enum Commands {
 
     /// Benchmark your solution code with more precision
     Bench,
-
     // /// Generate flamegraphs of CPU time used by your solution code
     // Flamegraph,
 

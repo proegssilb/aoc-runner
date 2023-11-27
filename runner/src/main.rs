@@ -3,8 +3,8 @@
 use std::io;
 use std::io::BufRead;
 
-use aoc_zen_runner::commands as cmds;
 use aoc_zen_runner::cli::*;
+use aoc_zen_runner::commands as cmds;
 use clap::Parser;
 
 fn stdin_wrapper() -> impl BufRead {

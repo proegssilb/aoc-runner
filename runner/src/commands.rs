@@ -1,7 +1,9 @@
 use std::io::BufRead;
 
-use crate::{cli::Cli, iodomain::credentials::{ConfigFileCookieStore, CookieStore}};
-
+use crate::{
+    cli::Cli,
+    iodomain::credentials::{ConfigFileCookieStore, CookieStore},
+};
 
 const AUTH_MESSAGE: &str = "This command doesn't implement proper authenticaion yet. Use your browser to visit and log in to the AOC website, then copy the value of the 'session' cookie, and paste it here: ";
 
