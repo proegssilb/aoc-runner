@@ -1,0 +1,4 @@
+enabled: true
+also_exclude:
+  - "runner/tests/cmd/**"
+  - "runner/tests/cmd/*"
