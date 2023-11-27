@@ -1,0 +1,2 @@
+This command doesn't implement proper authenticaion yet. Use your browser to visit and log in to the AOC website, then copy the value of the 'session' cookie, and paste it here: 
+Session cookie stored successfully.
