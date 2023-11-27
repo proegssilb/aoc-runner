@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    "crates",
+    "all-contributors",
+    "conventional-commits",
+    "first-time-contributor",
+    "released"
+  ],
+  "owner": "proegssilb",
+  "repo": "aoc-zen-runner",
+  "name": "proegssilb",
+  "email": "proegssilb@gmail.com",
+  "onlyPublishWithReleaseLabel": true
+}
