@@ -61,8 +61,11 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
         return Err(RunError::NotInACrate.into())
     };
 
-    // Figure out the latest day
-    let Some(&ref target) = data.get_target_for_latest_day(curr_package) else {
+    // Figure out the selected day
+    let Some(&ref target) = (match _cli.day {
+        None => data.get_target_for_latest_day(curr_package),
+        Some(d) => data.get_day_map(curr_package).get(&d).map(|&p| p),
+    }) else {
         return Err(RunError::NoTargetsFound.into())
     };
 
