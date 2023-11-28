@@ -34,8 +34,6 @@ pub fn prepare<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> 
 
 #[derive(Error, Debug)]
 enum RunError {
-    #[error("Not currently in a AOC Year's crate. Failed to detect currently selected year.")]
-    NotInACrate,
     #[error("No targets found. Are there binaries in your Cargo.toml named similar to `day15`?")]
     NoTargetsFound,
     #[error("Could not pick out a default year. Are you currently in a year-specific crate's folder?")]
@@ -61,16 +59,10 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
     }
 
     // Figure out which year we're in
-    let Some(pack) = (match cli.year {
-        None => data.current_package(),
-        Some(y) => data.get_year_map().get(&y).map(|&p| p),
-    }) else {
-        return Err(RunError::YearNotFound.into());
-    };
-
-    let Some(curr_package) = data.current_package() else {
-        return Err(RunError::NotInACrate.into())
-    };
+    let pack = match cli.year {
+        None => data.current_package().ok_or(RunError::NoYearsFound),
+        Some(y) => data.get_year_map().get(&y).map(|&p| p).ok_or(RunError::YearNotFound),
+    }?;
 
     // Figure out the selected day
     let Some(&ref target) = (match cli.day {
