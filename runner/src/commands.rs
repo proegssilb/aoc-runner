@@ -39,7 +39,7 @@ enum RunError {
     #[error("Not currently in a AOC Year's crate. Failed to detect currently selected year.")]
     NotInACrate,
     #[error("No targets found. Are there binaries in your Cargo.toml named similar to `day15`?")]
-    NoTargetsFound
+    NoTargetsFound,
 }
 
 pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
@@ -75,15 +75,24 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
     let mut targets: Vec<(&Target, u8)> = Vec::new();
 
     for target in curr_package.targets.iter() {
-        let Some(captures) = day_filter.captures(&target.name) else { continue; };
+        let Some(captures) = day_filter.captures(&target.name) else {
+            continue;
+        };
         let Some(m) = captures.get(1) else {
             println!("Matched without finding a capture group: {}", target.name);
             continue;
         };
         let day_num: Result<u8, std::num::ParseIntError> = m.as_str().parse();
         match day_num {
-            Result::Err(e) => { println!("Failed to parse num: {}, '{}' ({})", target.name, m.as_str(), e.to_string())},
-            Result::Ok(dn) => { targets.push((target, dn)) },
+            Result::Err(e) => {
+                println!(
+                    "Failed to parse num: {}, '{}' ({})",
+                    target.name,
+                    m.as_str(),
+                    e.to_string()
+                )
+            }
+            Result::Ok(dn) => targets.push((target, dn)),
         }
     }
 
@@ -99,9 +108,13 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
     // And now, to run the target!
     println!("Running solutions for {}", target.name);
 
-    let output = Command::new("cargo").arg("run").arg("--bin").arg(&target.name).output()?;
+    let mut child = Command::new("cargo")
+        .arg("run")
+        .arg("--bin")
+        .arg(&target.name)
+        .spawn()?;
 
-    println!("{}", String::from_utf8_lossy(&output.stdout));
+    child.wait()?;
 
     Ok(())
 }
