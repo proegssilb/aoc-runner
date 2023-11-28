@@ -1,13 +1,11 @@
-use std::{collections::HashMap, env, io::BufRead, process::Command};
+use std::{io::BufRead, process::Command};
 
-use anyhow::Ok;
-use cargo_metadata::{Package, PackageId, Target};
-use regex::Regex;
+use anyhow::{Ok, Context};
 use thiserror::Error;
 
 use crate::{
     cli::Cli,
-    iodomain::credentials::{ConfigFileCookieStore, CookieStore},
+    iodomain::{credentials::{ConfigFileCookieStore, CookieStore}, cargo::WorkspaceMeta},
 };
 
 const AUTH_MESSAGE: &str = "This command doesn't implement proper authenticaion yet. Use your browser to visit and log in to the AOC website, then copy the value of the 'session' cookie, and paste it here: ";
@@ -43,15 +41,10 @@ enum RunError {
 }
 
 pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
-    let day_filter: Regex = Regex::new(r"^d(?:ay)?(\d{1,2})$").unwrap();
 
     // Get some data together
-    let cmd = cargo_metadata::MetadataCommand::new();
-    let meta = cmd.exec()?;
-    let curr_dir = env::current_dir()?;
-    println!("Current directory: {}", env::current_dir()?.display());
-    println!("Workspace root: {}", meta.workspace_root);
-    let _package_map: HashMap<&PackageId, &Package> = HashMap::from_iter(meta.packages.iter().map(|p| (&p.id, p)));
+    let data = WorkspaceMeta::load()
+        .context("Failed to load data for the current cargo workspace. Are you in a crate or workspace?")?;
 
     // for pack_id in meta.workspace_members {
     //     println!("  Pack ID: {}", pack_id);
@@ -64,46 +57,14 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
     // }
 
     // Figure out which year we're in
-    let &curr_package = meta
-        .workspace_packages()
-        .iter()
-        .filter(|p| curr_dir.starts_with(p.manifest_path.parent().unwrap()))
-        .next()
-        .ok_or(RunError::NotInACrate)?;
+    let Some(curr_package) = data.current_package() else {
+        return Err(RunError::NotInACrate.into())
+    };
 
     // Figure out the latest day
-    let mut targets: Vec<(&Target, u8)> = Vec::new();
-
-    for target in curr_package.targets.iter() {
-        let Some(captures) = day_filter.captures(&target.name) else {
-            continue;
-        };
-        let Some(m) = captures.get(1) else {
-            println!("Matched without finding a capture group: {}", target.name);
-            continue;
-        };
-        let day_num: Result<u8, std::num::ParseIntError> = m.as_str().parse();
-        match day_num {
-            Result::Err(e) => {
-                println!(
-                    "Failed to parse num: {}, '{}' ({})",
-                    target.name,
-                    m.as_str(),
-                    e.to_string()
-                )
-            }
-            Result::Ok(dn) => targets.push((target, dn)),
-        }
-    }
-
-    targets.sort_by(|a, b| Ord::cmp(&b.1, &a.1));
-
-    if targets.len() == 0 {
-        println!("No targets found.");
-        return Err(RunError::NoTargetsFound.into());
-    }
-
-    let &target = &targets[0].0;
+    let Some(&ref target) = data.get_target_for_latest_day(curr_package) else {
+        return Err(RunError::NoTargetsFound.into())
+    };
 
     // And now, to run the target!
     println!("Running solutions for {}", target.name);
