@@ -38,33 +38,44 @@ enum RunError {
     NotInACrate,
     #[error("No targets found. Are there binaries in your Cargo.toml named similar to `day15`?")]
     NoTargetsFound,
+    #[error("Could not pick out a default year. Are you currently in a year-specific crate's folder?")]
+    NoYearsFound,
+    #[error("Could not find year specified. Is that year a crate in your workspace?")]
+    YearNotFound,
 }
 
-pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
+pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
 
     // Get some data together
     let data = WorkspaceMeta::load()
         .context("Failed to load data for the current cargo workspace. Are you in a crate or workspace?")?;
 
-    // for pack_id in meta.workspace_members {
-    //     println!("  Pack ID: {}", pack_id);
-    //     if let Some(pack) = package_map.get(&pack_id) {
-    //         println!("    Manifest path: {}", pack.manifest_path);
-    //         for t in pack.targets.iter() {
-    //             println!("    Target: {} ({})", t.name, t.src_path);
-    //         }
-    //     }
-    // }
+    for pack_id in data.worspace_data.workspace_members.iter() {
+        println!("  Pack ID: {}", pack_id);
+        if let Some(pack) = data.package_map().get(&pack_id) {
+            println!("    Manifest path: {}", pack.manifest_path);
+            for t in pack.targets.iter() {
+                println!("    Target: {} ({})", t.name, t.src_path);
+            }
+        }
+    }
 
     // Figure out which year we're in
+    let Some(pack) = (match cli.year {
+        None => data.current_package(),
+        Some(y) => data.get_year_map().get(&y).map(|&p| p),
+    }) else {
+        return Err(RunError::YearNotFound.into());
+    };
+
     let Some(curr_package) = data.current_package() else {
         return Err(RunError::NotInACrate.into())
     };
 
     // Figure out the selected day
-    let Some(&ref target) = (match _cli.day {
-        None => data.get_target_for_latest_day(curr_package),
-        Some(d) => data.get_day_map(curr_package).get(&d).map(|&p| p),
+    let Some(&ref target) = (match cli.day {
+        None => data.get_target_for_latest_day(pack),
+        Some(d) => data.get_day_map(pack).get(&d).map(|&p| p),
     }) else {
         return Err(RunError::NoTargetsFound.into())
     };
@@ -76,6 +87,7 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
         .arg("run")
         .arg("--bin")
         .arg(&target.name)
+        .current_dir(pack.manifest_path.parent().unwrap())
         .spawn()?;
 
     child.wait()?;

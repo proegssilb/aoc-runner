@@ -81,4 +81,22 @@ impl WorkspaceMeta {
     pub fn get_day_map<'a>(&'a self, curr_package: &'a Package) -> HashMap<u8, &'a Target> {
         day_map_raw(curr_package)
     }
+
+    pub fn get_year_map<'a> (&'a self) -> HashMap<u16, &'a Package> {
+        let year_filter = Regex::new(r"(\d{4})$").unwrap();
+        let mut year_map: HashMap<u16, &Package> = HashMap::new();
+
+        for pack in self.worspace_data.workspace_packages() {
+            let captures = year_filter.captures(&pack.name);
+            let c = match captures {
+                Some(cs) => cs.get(1).unwrap(),
+                None => { continue; }
+            };
+
+            let year: u16 = c.as_str().parse().unwrap();
+            year_map.insert(year, pack);
+        }
+
+        year_map
+    }
 }
