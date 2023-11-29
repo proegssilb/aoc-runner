@@ -1,2 +1,2 @@
-pub mod credentials;
 pub mod cargo;
+pub mod credentials;
