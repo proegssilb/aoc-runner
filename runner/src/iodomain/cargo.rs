@@ -56,8 +56,8 @@ impl WorkspaceMeta {
         let cmd = cargo_metadata::MetadataCommand::new();
         let meta = cmd.exec()?;
         let curr_dir = env::current_dir()?;
-        println!("Current directory: {}", env::current_dir()?.display());
-        println!("Workspace root: {}", meta.workspace_root);
+        // println!("Current directory: {}", env::current_dir()?.display());
+        // println!("Workspace root: {}", meta.workspace_root);
 
         // TODO: Add lazy-loaded package map, current package, and day map.
 
