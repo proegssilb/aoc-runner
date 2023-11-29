@@ -182,7 +182,7 @@ fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
 
         #[cfg(not(test))]
         fn main() {
-            println!("## AOC 2022, Day {} ----------", #day_num);
+            println!("## AOC {}, Day {} ----------", #year_num, #day_num);
             let p1len = _gen_lists::P1_SOLUTIONS.len();
             let p2len = _gen_lists::P2_SOLUTIONS.len();
             if p1len > 0 {

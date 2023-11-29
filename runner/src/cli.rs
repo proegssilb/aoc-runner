@@ -11,6 +11,12 @@ pub struct Cli {
     #[arg(short, long, action = clap::ArgAction::Count)]
     pub verbose: u8,
 
+    #[arg(short, long)]
+    pub day: Option<u8>,
+
+    #[arg(short, long)]
+    pub year: Option<u16>,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
