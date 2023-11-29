@@ -1,12 +1,15 @@
-use std::{collections::HashMap, env, path::{PathBuf, Path}};
+use std::{
+    collections::HashMap,
+    env,
+    path::{Path, PathBuf},
+};
 
 use anyhow as ah;
 use cargo_metadata::{Metadata, Package, PackageId, Target};
 use regex::Regex;
 
 fn curr_pack_raw<'b>(meta: &'b Metadata, curr_dir: &Path) -> Option<&'b Package> {
-    meta
-        .workspace_packages()
+    meta.workspace_packages()
         .into_iter()
         .filter(|&p| curr_dir.starts_with(p.manifest_path.parent().unwrap()))
         .next()
@@ -34,7 +37,9 @@ fn day_map_raw<'c>(curr_package: &'c Package) -> HashMap<u8, &'c Target> {
                     e.to_string()
                 )
             }
-            Result::Ok(dn) => { day_map.insert(dn, target); },
+            Result::Ok(dn) => {
+                day_map.insert(dn, target);
+            }
         }
     }
 
@@ -82,7 +87,7 @@ impl WorkspaceMeta {
         day_map_raw(curr_package)
     }
 
-    pub fn get_year_map<'a> (&'a self) -> HashMap<u16, &'a Package> {
+    pub fn get_year_map<'a>(&'a self) -> HashMap<u16, &'a Package> {
         let year_filter = Regex::new(r"(\d{4})$").unwrap();
         let mut year_map: HashMap<u16, &Package> = HashMap::new();
 
@@ -90,7 +95,9 @@ impl WorkspaceMeta {
             let captures = year_filter.captures(&pack.name);
             let c = match captures {
                 Some(cs) => cs.get(1).unwrap(),
-                None => { continue; }
+                None => {
+                    continue;
+                }
             };
 
             let year: u16 = c.as_str().parse().unwrap();

@@ -1,11 +1,14 @@
 use std::{io::BufRead, process::Command};
 
-use anyhow::{Ok, Context};
+use anyhow::{Context, Ok};
 use thiserror::Error;
 
 use crate::{
     cli::Cli,
-    iodomain::{credentials::{ConfigFileCookieStore, CookieStore}, cargo::WorkspaceMeta},
+    iodomain::{
+        cargo::WorkspaceMeta,
+        credentials::{ConfigFileCookieStore, CookieStore},
+    },
 };
 
 const AUTH_MESSAGE: &str = "This command doesn't implement proper authenticaion yet. Use your browser to visit and log in to the AOC website, then copy the value of the 'session' cookie, and paste it here: ";
@@ -43,7 +46,6 @@ enum RunError {
 }
 
 pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
-
     // Get some data together
     let data = WorkspaceMeta::load()
         .context("Failed to load data for the current cargo workspace. Are you in a crate or workspace?")?;
@@ -69,7 +71,7 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
         None => data.get_target_for_latest_day(pack),
         Some(d) => data.get_day_map(pack).get(&d).map(|&p| p),
     }) else {
-        return Err(RunError::NoTargetsFound.into())
+        return Err(RunError::NoTargetsFound.into());
     };
 
     // And now, to run the target!
