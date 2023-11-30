@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.0...aoc-zen-runner-macros-v0.1.1) - 2023-11-30
+
+### Other
+- release ([#142](https://github.com/proegssilb/aoc-zen-runner/pull/142))
+
 ## [0.1.0](https://github.com/proegssilb/aoc-zen-runner/releases/tag/aoc-zen-runner-macros-v0.1.0) - 2023-11-30
 
 ### Other
