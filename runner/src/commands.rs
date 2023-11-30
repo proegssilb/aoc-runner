@@ -1,7 +1,7 @@
 use std::{
     cmp::min,
     fs::{create_dir_all, write},
-    io::BufRead,
+    io::{BufRead, Write},
     process::Command,
     sync::Arc,
 };
@@ -14,22 +14,24 @@ use reqwest::{blocking::ClientBuilder, cookie::Jar, Url};
 use thiserror::Error;
 
 use crate::{
-    cli::Cli,
+    cli::{Cli, Commands},
     iodomain::{
-        cargo::WorkspaceMeta,
-        credentials::{ConfigFileCookieStore, CookieStore},
+        cargo::{WorkspaceMeta, day_from_bin, year_from_package},
+        credentials::{CookieStore, SessionFileCookieStore},
     },
 };
 
 const AUTH_MESSAGE: &str = "This command doesn't implement proper authenticaion yet. Use your browser to visit and log in to the AOC website, then copy the value of the 'session' cookie, and paste it here: ";
 
-pub fn login<T: BufRead>(readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
-    let mut store = ConfigFileCookieStore::new()?;
-    let mut in_stream = readfn();
-    print!("{}", AUTH_MESSAGE);
+pub fn login<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , _cli: Cli) -> anyhow::Result<()> {
+    let (mut stdin, mut stdout) = (readfn(), writefn());
+
+    let mut store = SessionFileCookieStore::new()?;
+    write!(&mut stdout, "{}", AUTH_MESSAGE)?;
+    stdout.flush()?;
 
     let mut cookie: String = String::new();
-    in_stream.read_line(&mut cookie)?;
+    stdin.read_line(&mut cookie)?;
 
     store.set_session_cookie(cookie.trim())?;
 
@@ -37,11 +39,15 @@ pub fn login<T: BufRead>(readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn input<T: BufRead>(readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
-    let store = ConfigFileCookieStore::new()?;
+pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: Cli) -> anyhow::Result<()> {
+    println!("Attempting to download input file: {:?}", &cli);
+    let store = SessionFileCookieStore::new()?;
     let stored_session = store.get_session_cookie()?;
     if stored_session == "" {
-        login(readfn, cli.clone())?;
+        println!("Could not find session, logging in.");
+        login(readfn, writefn, cli.clone())?;
+    } else {
+        println!("Using existing session.");
     }
 
     let meta = WorkspaceMeta::load()?;
@@ -94,18 +100,20 @@ pub fn input<T: BufRead>(readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
     let input_url = format!("https://adventofcode.com/{}/day/{}/input", year, day);
     let response = client.get(input_url).send()?;
 
-    let mut target_name = meta.worspace_data.workspace_root.clone();
-    target_name.push("input");
-    target_name.push(year.to_string());
-    create_dir_all(&target_name)?;
-    target_name.push(format!("{}.txt", day));
+    let target_name = meta.get_input_file_for_day(&year, &day);
 
+    // Make sure the target directory exists
+    let mut dir_name = target_name.clone();
+    dir_name.pop();
+    create_dir_all(dir_name)?;
+
+    println!("Saving input to {}.", &target_name);
     write(target_name, response.text()?)?;
 
     Ok(())
 }
 
-pub fn prepare<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
+pub fn prepare<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U , _cli: Cli) -> anyhow::Result<()> {
     todo!()
 }
 
@@ -119,7 +127,7 @@ enum RunError {
     YearNotFound,
 }
 
-pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
+pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: Cli) -> anyhow::Result<()> {
     // Get some data together
     let data = WorkspaceMeta::load()
         .context("Failed to load data for the current cargo workspace. Are you in a crate or workspace?")?;
@@ -148,6 +156,22 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
         return Err(RunError::NoTargetsFound.into());
     };
 
+    // Try to get the input for the problem if we don't have it.
+    let day_num = day_from_bin(target)?;
+    let year_num = year_from_package(pack)?;
+
+    let input_file = data.get_input_file_for_day(&year_num, &day_num);
+    if !input_file.exists() {
+        println!("Creating input file: {}", input_file);
+        let input_args = Cli {verbose: 0, day: Some(day_num), year: Some(year_num), command: Some(Commands::Input)};
+        let res = input(readfn, writefn, input_args);
+        if let Err(e) = res {
+            println!("Error while downloading input: {}", e);
+        }
+    } else {
+        println!("File exists: {}", input_file);
+    }
+
     // And now, to run the target!
     println!("Running solutions for {}", target.name);
 
@@ -163,6 +187,6 @@ pub fn run<T: BufRead>(_readfn: fn() -> T, cli: Cli) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn benchmark<T: BufRead>(_readfn: fn() -> T, _cli: Cli) -> anyhow::Result<()> {
+pub fn benchmark<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U , _cli: Cli) -> anyhow::Result<()> {
     todo!()
 }

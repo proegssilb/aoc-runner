@@ -21,7 +21,6 @@ cargo_metadata = "0.18.1"
 chrono = "0.4.31"
 chrono-tz = "0.8.4"
 clap = { version = "4.4.10", features = ["derive", "cargo", "env", "unicode", "string"] }
-confy = "0.5.1"
 directories = "5.0.1"
 regex = "1.10.2"
 reqwest = { version = "0.11.22", features = ["blocking", "cookies", "gzip", "brotli", "deflate"] }
