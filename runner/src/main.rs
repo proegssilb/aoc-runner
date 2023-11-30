@@ -17,7 +17,7 @@ fn stdout_wrapper() -> impl Write {
 }
 
 fn main() -> anyhow::Result<()> {
-    let cli = Cli::parse();
+    let Cli::Aoc(cli) = Cli::parse();
 
     match &cli.command {
         Some(Commands::Login) => cmds::login(stdin_wrapper, stdout_wrapper, cli),
