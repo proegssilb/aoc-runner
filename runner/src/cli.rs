@@ -1,8 +1,14 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, Args};
 
 #[derive(Parser, Clone, Debug)]
 #[command(author, version, about, long_about = None)]
-pub struct Cli {
+pub enum Cli {
+    #[command(name = "aoc")]
+    Aoc(Aoc)
+}
+
+#[derive(Clone, Debug, Args)]
+pub struct Aoc {
     // TODO: Spec out a config file. If we need one.
     // /// Sets a custom config file
     // #[arg(short, long, value_name = "FILE")]
