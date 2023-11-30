@@ -3,8 +3,13 @@ name = "cargo-aoc-zen-runner"
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/proegssilb/aoc-zen-runner"
+homepage = "https://github.com/proegssilb/aoc-zen-runner"
+documentation = "https://github.com/proegssilb/aoc-zen-runner"
+readme = "README.md"
 license = "Apache-2.0"
 description = "An Advent of Code runner aiming to streamline a variety of repository layouts and tasks."
+categories = ["command-line-utilities", "development-tools::cargo-plugins", ]
+keywords = ["advent-of-code", "aoc"]
 
 [lib]
 name = "aoc_zen_runner"

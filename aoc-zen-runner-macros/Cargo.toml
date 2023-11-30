@@ -2,6 +2,14 @@
 name = "aoc-zen-runner-macros"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/proegssilb/aoc-zen-runner"
+homepage = "https://github.com/proegssilb/aoc-zen-runner"
+documentation = "https://github.com/proegssilb/aoc-zen-runner"
+readme = "README.md"
+license = "Apache-2.0"
+description = "Macros for aoc-zen-runner."
+categories = ["command-line-utilities", "development-tools::cargo-plugins", ]
+keywords = ["advent-of-code", "aoc"]
 
 [lib]
 proc-macro = true
