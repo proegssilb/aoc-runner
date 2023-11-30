@@ -1,4 +1,4 @@
-use aoc_zen_runner_macros::{aoc, solution, solver, generator};
+use aoc_zen_runner_macros::{aoc, generator, solution, solver};
 
 #[aoc(2022, day6)]
 pub mod solutions {
@@ -36,8 +36,8 @@ pub mod solutions {
 
 #[cfg(test)]
 mod tests {
-    use aoc_zen_runner_macros::aoc_case;
     use super::solutions::*;
+    use aoc_zen_runner_macros::aoc_case;
 
     #[aoc_case(0, 0)]
     const input1: &str = "";
