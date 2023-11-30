@@ -1,6 +1,6 @@
 use aoc_zen_runner_macros::{aoc, solution, solver, generator};
 
-#[aoc({{year}}, day{{day}})]
+#[aoc(2021, day6)]
 pub mod solutions {
     use super::*;
 
