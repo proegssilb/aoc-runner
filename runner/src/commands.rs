@@ -127,7 +127,7 @@ enum RunError {
     YearNotFound,
 }
 
-pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Cli) -> anyhow::Result<()> {
+pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Cli, cmd: &str) -> anyhow::Result<()> {
     // Get some data together
     let data = WorkspaceMeta::load()
         .context("Failed to load data for the current cargo workspace. Are you in a crate or workspace?")?;
@@ -141,6 +141,14 @@ pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Cli
     //         }
     //     }
     // }
+
+    match cmd {
+        "run" => {}
+        "test" => {}
+        _ => {
+            return Err(anyhow!("Invalid command given to `run`. This should not happen."));
+        }
+    }
 
     // Figure out which year we're in
     let pack = match cli.year {
@@ -181,7 +189,7 @@ pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Cli
     println!("Running solutions for {}", target.name);
 
     let mut child = Command::new("cargo")
-        .arg("run")
+        .arg(cmd)
         .arg("--bin")
         .arg(&target.name)
         .current_dir(pack.manifest_path.parent().unwrap())

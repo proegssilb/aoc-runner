@@ -37,6 +37,9 @@ pub enum Commands {
 
     /// Benchmark your solution code with more precision
     Bench,
+
+    /// Run your code against unit tests defined in the code
+    Test,
     // /// Generate flamegraphs of CPU time used by your solution code
     // Flamegraph,
 

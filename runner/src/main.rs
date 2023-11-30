@@ -23,8 +23,9 @@ fn main() -> anyhow::Result<()> {
         Some(Commands::Login) => cmds::login(stdin_wrapper, stdout_wrapper, cli),
         Some(Commands::Input) => cmds::input(stdin_wrapper, stdout_wrapper, cli),
         Some(Commands::Prep) => cmds::prepare(stdin_wrapper, stdout_wrapper, cli),
-        Some(Commands::Run) => cmds::run(stdin_wrapper, stdout_wrapper, cli),
+        Some(Commands::Run) => cmds::run(stdin_wrapper, stdout_wrapper, cli, "run"),
+        Some(Commands::Test) => cmds::run(stdin_wrapper, stdout_wrapper, cli, "test"),
         Some(Commands::Bench) => cmds::benchmark(stdin_wrapper, stdout_wrapper, cli),
-        None => cmds::run(stdin_wrapper, stdout_wrapper, cli),
+        None => cmds::run(stdin_wrapper, stdout_wrapper, cli, "run"),
     }
 }
