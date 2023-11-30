@@ -59,7 +59,7 @@ pub fn add_day_to_package(
 ) -> Result<()> {
     // Add the day file to the year-package's Cargo.toml
     let mut doc = std::fs::read_to_string(year_cargo)?.parse::<Document>()?;
-    let mut bintable = doc["bin"]
+    let bintable = doc["bin"]
         .as_array_of_tables_mut()
         .expect("Per-year cargo doc should have already had a [[bin]] table in it.");
 
