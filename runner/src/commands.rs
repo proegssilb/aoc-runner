@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Context, Ok};
-use chrono::{Datelike, Utc};
+use chrono::{Datelike, Timelike, Utc};
 use chrono_tz::US::Eastern;
 use regex::Regex;
 use reqwest::{blocking::ClientBuilder, cookie::Jar, Url};
@@ -15,6 +15,7 @@ use thiserror::Error;
 
 use crate::{
     cli::{Cli, Commands},
+    codegen::{add_day_to_package, add_package_to_workspace, generate_day_file, populate_year_package},
     iodomain::{
         cargo::{day_from_bin, year_from_package, WorkspaceMeta},
         credentials::{CookieStore, SessionFileCookieStore},
@@ -113,8 +114,87 @@ pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: C
     Ok(())
 }
 
-pub fn prepare<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U, _cli: Cli) -> anyhow::Result<()> {
-    todo!()
+pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli: Cli) -> anyhow::Result<()> {
+    // Figure out which day(s) we're prepping for
+    // - In November, default to Dec 1 of the current year.
+    // - In December, default to the current day before 11pm EST, and the next day after 11pm EST.
+    // - Otherwise, default to the Dec 25th of the previous year.
+
+    let stamp = Utc::now().with_timezone(&Eastern);
+
+    let year = _cli
+        .year
+        .and_then(|y| Some(y as u32))
+        .or_else(|| match (stamp.month(), stamp.hour()) {
+            (11, _) => Some(stamp.year() as u32),
+            (12, _) => Some(stamp.year() as u32),
+            _ => Some((stamp.year() - 1) as u32),
+        })
+        .unwrap();
+
+    let day = _cli
+        .day
+        .and_then(|d| Some(d as u32))
+        .or_else(|| match (stamp.month(), stamp.hour()) {
+            (11, _) => Some(1u32),
+            (12, 23) => Some((stamp.day() + 1).clamp(1, 25)),
+            (12, _) => Some(stamp.day()),
+            _ => Some(25),
+        })
+        .unwrap();
+
+    // If the year doesn't exist yet, generate a workspace member for it (new folder, edit workspace Cargo.toml, create package Cargo.toml, create .gitignore)
+    let meta = WorkspaceMeta::load()?;
+    let workspace_root = meta.worspace_data.workspace_root.clone();
+    let year_root = workspace_root.join(year.to_string());
+
+    if !year_root.exists() {
+        create_dir_all(&year_root.join("src"))?;
+        populate_year_package(&year_root, year)?;
+    }
+
+    if !meta.get_year_map().contains_key(&(year as u16)) {
+        add_package_to_workspace(&workspace_root.join("Cargo.toml"), year)?;
+    }
+
+    // If the day doesn't exist yet, generate a binary for it (new file, edit package Cargo.toml)
+    let meta = WorkspaceMeta::load()?;
+    let day_file = year_root.join("src").join(format!("day{}.rs", day));
+
+    if !day_file.exists() {
+        generate_day_file(&day_file, year, day)?;
+    }
+
+    let &current_package = meta
+        .get_year_map()
+        .get(&(year as u16))
+        .expect("Could not find year package program just added.");
+    let day_map = meta.get_day_map(current_package);
+    if !day_map.contains_key(&(day as u8)) {
+        add_day_to_package(day, &day_file, &year_root.join("Cargo.toml"), &year_root)?;
+    }
+
+    // Download the input file if it might be available.
+    let stamp = Utc::now().with_timezone(&Eastern);
+    if stamp.day() == day && stamp.year() == year as i32 {
+        let input_file = meta.get_input_file_for_day(&(year as u16), &(day as u8));
+        if !input_file.exists() {
+            let input_args = Cli {
+                verbose: 0,
+                day: Some(day as u8),
+                year: Some(year as u16),
+                command: Some(Commands::Input),
+            };
+            let res = input(readfn, writefn, input_args);
+            if let Err(e) = res {
+                println!("Error while downloading input: {}", e);
+            }
+        }
+    }
+
+    // Run an update & build cycle
+
+    Ok(())
 }
 
 #[derive(Error, Debug)]
