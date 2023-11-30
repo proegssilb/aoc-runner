@@ -1,4 +1,4 @@
-use aoc_zen_runner_macros::{aoc, solution, solver, generator};
+use aoc_zen_runner_macros::{aoc, generator, solution, solver};
 
 #[aoc({{year}}, day{{day}})]
 pub mod solutions {
