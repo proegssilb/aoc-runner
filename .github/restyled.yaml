@@ -2,3 +2,5 @@ enabled: true
 also_exclude:
   - "runner/tests/cmd/**"
   - "runner/tests/cmd/*"
+  - "runner/src/templates/**"
+  - "runner/src/templates/*"
