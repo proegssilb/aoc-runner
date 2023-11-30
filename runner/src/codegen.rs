@@ -3,7 +3,7 @@ use std::fs::write;
 use anyhow::Result;
 use cargo_metadata::camino::Utf8Path;
 use liquid::ParserBuilder;
-use toml_edit::{Document, Array, value, Table};
+use toml_edit::{value, Array, Document, Table};
 
 const YEAR_CARGO_TEMPLATE: &str = include_str!("templates/year-Cargo.toml");
 const GITIGNORE: &str = include_str!("templates/year-gitignore");
@@ -26,7 +26,9 @@ pub fn add_package_to_workspace(workspace_toml: &Utf8Path, year_num: u32) -> Res
     // Edit the workspace's Cargo.toml to include the new year package.
     let mut doc = std::fs::read_to_string(workspace_toml)?.parse::<Document>()?;
 
-    let members: &mut Array = doc["workspace"]["members"].as_array_mut().expect("Cargo doc format not recognized");
+    let members: &mut Array = doc["workspace"]["members"]
+        .as_array_mut()
+        .expect("Cargo doc format not recognized");
 
     members.push(&year_num.to_string());
 
@@ -49,7 +51,12 @@ pub fn generate_day_file(day_file: &Utf8Path, year_num: u32, day_num: u32) -> Re
     Ok(())
 }
 
-pub fn add_day_to_package(day_num: u32, day_file: &Utf8Path, year_cargo: &Utf8Path, year_path: &Utf8Path) -> Result<()> {
+pub fn add_day_to_package(
+    day_num: u32,
+    day_file: &Utf8Path,
+    year_cargo: &Utf8Path,
+    year_path: &Utf8Path,
+) -> Result<()> {
     // Add the day file to the year-package's Cargo.toml
     let mut doc = std::fs::read_to_string(year_cargo)?.parse::<Document>()?;
     let mut bintable = doc["bin"]

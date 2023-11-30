@@ -1,6 +1,5 @@
 max_width = 120
 
-[ignore]
-directories = [
+ignore = [
     "runner/src/templates",
 ]
