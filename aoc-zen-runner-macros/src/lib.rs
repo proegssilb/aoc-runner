@@ -1,6 +1,5 @@
-use std::path::Path;
-
 use aggregate::{discover_mod_contents, AocSolutionsAggregation};
+use cargo_metadata::MetadataCommand;
 use domain::{AocGeneratorData, AocSolverData};
 use parser::caseargs::AocCaseArgs;
 use parser::macroargs::AocMacroArgs;
@@ -171,18 +170,32 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
 
 fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
-    let inputs_path = format!("input/{}", year_num);
-    let input_file = format!("{}.txt", day_num);
-    let input_file_path = Path::new(&manifest_dir).join(inputs_path).join(input_file);
-    let input_file_cow = input_file_path.to_string_lossy();
-    let input_file = input_file_cow.as_ref();
+    let Ok(meta) = MetadataCommand::new().current_dir(manifest_dir).exec() else {
+        panic!("Could not gather cargo metadata.");
+    };
+    let mut input_path = meta.workspace_root;
+    input_path.push("input");
+    input_path.push(year_num.to_string());
+    input_path.push(format!("{}.txt", day_num));
+
+    let input_file = input_path.as_str();
+
+    let input_blob = if input_path.exists() {
+        quote! { include_str!(#input_file) }
+    } else {
+        quote! { "" }
+    };
 
     quote! {
-        const AOC_RAW_INPUT: &str = include_str!(#input_file);
+        const AOC_RAW_INPUT: &str = #input_blob;
 
         #[cfg(not(test))]
         fn main() {
             println!("## AOC {}, Day {} ----------", #year_num, #day_num);
+            if AOC_RAW_INPUT.len() == 0 {
+                println!("No input found.");
+                return;
+            }
             let p1len = _gen_lists::P1_SOLUTIONS.len();
             let p2len = _gen_lists::P2_SOLUTIONS.len();
             if p1len > 0 {

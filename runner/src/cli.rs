@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-#[derive(Parser, Clone)]
+#[derive(Parser, Clone, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     // TODO: Spec out a config file. If we need one.
@@ -21,7 +21,7 @@ pub struct Cli {
     pub command: Option<Commands>,
 }
 
-#[derive(Subcommand, Clone)]
+#[derive(Subcommand, Clone, Debug)]
 pub enum Commands {
     /// Log in to the Advent of Code website for input downloading
     Login,

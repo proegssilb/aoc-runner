@@ -1,15 +1,12 @@
-use anyhow::Ok;
-use confy::{load, store};
-use serde_derive::{Deserialize, Serialize};
-use thiserror::Error;
+use std::fs::{create_dir_all, File, OpenOptions};
+use std::io::Write;
+use std::path::PathBuf;
 
-#[derive(Error, Debug)]
-enum CredentialStoreError {
-    #[error("There is no session stored. Please authenticate with Advent of Code before continuing.")]
-    SessionNotSet,
-    #[error("Credential data not loaded when expected. This is a bug.")]
-    NoCredentialsFound,
-}
+use anyhow as ah;
+use anyhow::{anyhow, Ok};
+use clap::crate_name;
+use directories::ProjectDirs;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 struct CredentialStore {
@@ -21,53 +18,47 @@ pub trait CookieStore {
     fn set_session_cookie(&mut self, session: &str) -> anyhow::Result<()>;
 }
 
-pub struct ConfigFileCookieStore {
-    config_data: Option<CredentialStore>,
+pub struct SessionFileCookieStore {
+    pub session_cookie: String,
+    session_file: PathBuf,
 }
 
-impl ConfigFileCookieStore {
-    pub fn new() -> anyhow::Result<ConfigFileCookieStore> {
-        let mut instance = ConfigFileCookieStore { config_data: None };
-
-        instance.read_file()?;
-
-        Ok(instance)
-    }
-
-    fn read_file(&mut self) -> anyhow::Result<()> {
-        self.config_data = Some(load(clap::crate_name!(), "creds")?);
-
-        Ok(())
-    }
-
-    fn write_file(&mut self) -> anyhow::Result<()> {
-        let Some(ref mut conf) = self.config_data else {
-            return Err(CredentialStoreError::NoCredentialsFound.into());
+impl SessionFileCookieStore {
+    pub fn new() -> ah::Result<SessionFileCookieStore> {
+        let Some(proj_dirs) = ProjectDirs::from("com", "xenrelay", crate_name!()) else {
+            return Err(anyhow!("Cannot load config directories."));
         };
 
-        Ok(store(clap::crate_name!(), "creds", conf)?)
-    }
-}
+        let conf_file = proj_dirs.config_local_dir().join("session.txt");
 
-impl CookieStore for ConfigFileCookieStore {
-    fn get_session_cookie(&self) -> anyhow::Result<&str> {
-        match &self.config_data {
-            None => Err(CredentialStoreError::SessionNotSet.into()),
-            Some(conf) => Ok(&conf.session_cookie),
+        let conf_f = OpenOptions::new().read(true).open(&conf_file);
+
+        if let Result::Ok(f) = conf_f {
+            let session_key = std::io::read_to_string(f)?;
+            Ok(SessionFileCookieStore {
+                session_cookie: session_key,
+                session_file: conf_file,
+            })
+        } else {
+            create_dir_all(proj_dirs.config_local_dir())?;
+            Ok(SessionFileCookieStore {
+                session_cookie: String::new(),
+                session_file: conf_file,
+            })
         }
     }
+}
 
-    fn set_session_cookie(&mut self, session: &str) -> anyhow::Result<()> {
-        self.read_file()?;
+impl CookieStore for SessionFileCookieStore {
+    fn get_session_cookie(&self) -> ah::Result<&str> {
+        Ok(&self.session_cookie)
+    }
 
-        let credential_store = &mut self.config_data;
-        let Some(ref mut conf) = credential_store else {
-            unreachable!("No credential data found, but no error occurred while reading credential data.")
-        };
+    fn set_session_cookie(&mut self, session: &str) -> ah::Result<()> {
+        self.session_cookie = session.to_owned();
 
-        conf.session_cookie = session.to_owned();
-
-        self.write_file()?;
+        let mut conf_file = File::create(&self.session_file)?;
+        conf_file.write_all(session.as_bytes())?;
 
         Ok(())
     }
