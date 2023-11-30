@@ -6,7 +6,7 @@ use std::{
 
 use ah::Ok;
 use anyhow as ah;
-use cargo_metadata::{Metadata, Package, PackageId, Target, camino::Utf8PathBuf};
+use cargo_metadata::{camino::Utf8PathBuf, Metadata, Package, PackageId, Target};
 use regex::Regex;
 
 fn curr_pack_raw<'b>(meta: &'b Metadata, curr_dir: &Path) -> Option<&'b Package> {

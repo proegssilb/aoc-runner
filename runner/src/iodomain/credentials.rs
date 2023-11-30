@@ -1,9 +1,9 @@
-use std::fs::{OpenOptions, create_dir_all, File};
-use std::path::PathBuf;
+use std::fs::{create_dir_all, File, OpenOptions};
 use std::io::Write;
+use std::path::PathBuf;
 
-use anyhow::{Ok, anyhow};
 use anyhow as ah;
+use anyhow::{anyhow, Ok};
 use clap::crate_name;
 use directories::ProjectDirs;
 use serde_derive::{Deserialize, Serialize};
@@ -26,19 +26,25 @@ pub struct SessionFileCookieStore {
 impl SessionFileCookieStore {
     pub fn new() -> ah::Result<SessionFileCookieStore> {
         let Some(proj_dirs) = ProjectDirs::from("com", "xenrelay", crate_name!()) else {
-            return Err(anyhow!("Cannot load config directories."))
+            return Err(anyhow!("Cannot load config directories."));
         };
 
         let conf_file = proj_dirs.config_local_dir().join("session.txt");
-        
+
         let conf_f = OpenOptions::new().read(true).open(&conf_file);
 
         if let Result::Ok(f) = conf_f {
             let session_key = std::io::read_to_string(f)?;
-            Ok(SessionFileCookieStore { session_cookie: session_key, session_file: conf_file })
+            Ok(SessionFileCookieStore {
+                session_cookie: session_key,
+                session_file: conf_file,
+            })
         } else {
             create_dir_all(proj_dirs.config_local_dir())?;
-            Ok(SessionFileCookieStore { session_cookie: String::new(), session_file: conf_file })
+            Ok(SessionFileCookieStore {
+                session_cookie: String::new(),
+                session_file: conf_file,
+            })
         }
     }
 }
@@ -57,4 +63,3 @@ impl CookieStore for SessionFileCookieStore {
         Ok(())
     }
 }
-

@@ -16,14 +16,14 @@ use thiserror::Error;
 use crate::{
     cli::{Cli, Commands},
     iodomain::{
-        cargo::{WorkspaceMeta, day_from_bin, year_from_package},
+        cargo::{day_from_bin, year_from_package, WorkspaceMeta},
         credentials::{CookieStore, SessionFileCookieStore},
     },
 };
 
 const AUTH_MESSAGE: &str = "This command doesn't implement proper authenticaion yet. Use your browser to visit and log in to the AOC website, then copy the value of the 'session' cookie, and paste it here: ";
 
-pub fn login<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , _cli: Cli) -> anyhow::Result<()> {
+pub fn login<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli: Cli) -> anyhow::Result<()> {
     let (mut stdin, mut stdout) = (readfn(), writefn());
 
     let mut store = SessionFileCookieStore::new()?;
@@ -39,7 +39,7 @@ pub fn login<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , _cli:
     Ok(())
 }
 
-pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: Cli) -> anyhow::Result<()> {
+pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Cli) -> anyhow::Result<()> {
     println!("Attempting to download input file: {:?}", &cli);
     let store = SessionFileCookieStore::new()?;
     let stored_session = store.get_session_cookie()?;
@@ -113,7 +113,7 @@ pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: 
     Ok(())
 }
 
-pub fn prepare<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U , _cli: Cli) -> anyhow::Result<()> {
+pub fn prepare<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U, _cli: Cli) -> anyhow::Result<()> {
     todo!()
 }
 
@@ -127,7 +127,7 @@ enum RunError {
     YearNotFound,
 }
 
-pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: Cli) -> anyhow::Result<()> {
+pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Cli) -> anyhow::Result<()> {
     // Get some data together
     let data = WorkspaceMeta::load()
         .context("Failed to load data for the current cargo workspace. Are you in a crate or workspace?")?;
@@ -163,7 +163,12 @@ pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: Cl
     let input_file = data.get_input_file_for_day(&year_num, &day_num);
     if !input_file.exists() {
         println!("Creating input file: {}", input_file);
-        let input_args = Cli {verbose: 0, day: Some(day_num), year: Some(year_num), command: Some(Commands::Input)};
+        let input_args = Cli {
+            verbose: 0,
+            day: Some(day_num),
+            year: Some(year_num),
+            command: Some(Commands::Input),
+        };
         let res = input(readfn, writefn, input_args);
         if let Err(e) = res {
             println!("Error while downloading input: {}", e);
@@ -187,6 +192,6 @@ pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U , cli: Cl
     Ok(())
 }
 
-pub fn benchmark<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U , _cli: Cli) -> anyhow::Result<()> {
+pub fn benchmark<T: BufRead, U: Write>(_readfn: fn() -> T, _writefn: fn() -> U, _cli: Cli) -> anyhow::Result<()> {
     todo!()
 }
