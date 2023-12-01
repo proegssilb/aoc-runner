@@ -14,7 +14,7 @@ use reqwest::{blocking::ClientBuilder, cookie::Jar, Url};
 use thiserror::Error;
 
 use crate::{
-    cli::{Commands, Aoc},
+    cli::{Aoc, Commands},
     codegen::{add_day_to_package, add_package_to_workspace, generate_day_file, populate_year_package},
     iodomain::{
         cargo::{day_from_bin, year_from_package, WorkspaceMeta},
