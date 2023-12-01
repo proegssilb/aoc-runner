@@ -212,7 +212,7 @@ fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
                             println!("\nSolver {} found {}", _gen_lists::P1_LABELS[idx], solution);
                         }
                     }
-                    println!("");
+                    println!("\n");
                 }
             }
             if p2len > 0 {
@@ -229,7 +229,7 @@ fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
                             println!("\nSolver {} found {}", _gen_lists::P2_LABELS[idx], solution);
                         }
                     }
-                    println!("");
+                    println!("\n");
                 }
             }
 
