@@ -1,6 +1,6 @@
 use std::{
     cmp::min,
-    fs::{create_dir_all, write},
+    fs::{create_dir_all, write, remove_file},
     io::{BufRead, Write},
     process::Command,
     sync::Arc,
@@ -101,15 +101,35 @@ pub fn input<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: A
     let input_url = format!("https://adventofcode.com/{}/day/{}/input", year, day);
     let response = client.get(input_url).send()?;
 
-    let target_name = meta.get_input_file_for_day(&year, &day);
+    if response.status().is_success() {
+        let target_name = meta.get_input_file_for_day(&year, &day);
 
-    // Make sure the target directory exists
-    let mut dir_name = target_name.clone();
-    dir_name.pop();
-    create_dir_all(dir_name)?;
+        // Make sure the target directory exists
+        let mut dir_name = target_name.clone();
+        dir_name.pop();
+        create_dir_all(dir_name)?;
+    
+        println!("Saving input to {}.", &target_name);
+        write(target_name, response.text()?)?;
 
-    println!("Saving input to {}.", &target_name);
-    write(target_name, response.text()?)?;
+        // Delete existing binary.
+        let year_map = meta.get_year_map();
+        let Some(&package) = year_map.get(&year) else {
+            return Ok(());
+        };
+        let day_map = meta.get_day_map(package);
+        let Some(&target) = day_map.get(&day) else {
+            return Ok(());
+        };
+        let path = meta.worspace_data.target_directory.join(&target.name);
+        let _ = remove_file(path);
+    }
+    else 
+    {
+        println!("Server replied with error: {}", response.status());
+        println!("Check your setup and try again. This runner does not currently have code to automatically handle this situation.");
+        println!("Raw response body:\n\n{}\n", response.text()?);
+    }
 
     Ok(())
 }
