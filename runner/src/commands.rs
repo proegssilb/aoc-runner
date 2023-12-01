@@ -270,6 +270,7 @@ pub fn run<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, cli: Aoc
 
     let mut child = Command::new("cargo")
         .arg(cmd)
+        .arg("--release")
         .arg("--bin")
         .arg(&target.name)
         .current_dir(pack.manifest_path.parent().unwrap())
