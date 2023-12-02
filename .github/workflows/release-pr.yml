@@ -4,13 +4,13 @@ permissions:
   pull-requests: write
   contents: write
 
-on:
-    pull_request:
-        types:
-          - opened
-          - edited
-        branches:
-          - main
+# on:
+#     pull_request:
+#         types:
+#           - opened
+#           - edited
+#         branches:
+#           - main
 
 jobs:
   release-plz:

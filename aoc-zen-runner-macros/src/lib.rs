@@ -47,37 +47,40 @@ pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
     let exp_p1 = args.expected_p1;
     let p2 = args.expected_p2;
     let input = parse_macro_input!(item as ItemConst);
-    let ty = input.ty.as_ref();
-    let in_val = input.expr.as_ref();
+    let in_name = &input.ident;
     let slug_str: String = "aoc_test_".to_string() + input.ident.to_string().as_str();
     let slug = Ident::new(&slug_str, input.ident.span());
 
     if let Some(exp_p2) = p2 {
         quote! {
+            #input
+
             #[test]
             fn #slug() {
                 let expected_p1 = #exp_p1;
                 let expected_p2 = #exp_p2;
-                let input: #ty = #in_val;
 
-                for p1 in super::_gen_lists::P1_SOLUTIONS {
-                    assert_eq!(expected_p1, p1(input));
+                for (idx, p1) in super::_gen_lists::P1_SOLUTIONS.iter().enumerate() {
+                    let test_label = super::_gen_lists::P1_LABELS[idx];
+                    assert_eq!(expected_p1, p1(#in_name), "Part 1 Test failed solution: {}", test_label);
                 }
-                for p2 in super::_gen_lists::P2_SOLUTIONS {
-                    assert_eq!(expected_p2, p2(input));
+                for (idx, p2) in super::_gen_lists::P2_SOLUTIONS.iter().enumerate() {
+                    let test_label = super::_gen_lists::P1_LABELS[idx];
+                    assert_eq!(expected_p2, p2(#in_name), "Part 2 Test failed solution: {}", test_label);
                 }
             }
         }
         .into()
     } else {
         quote! {
+            #input
+
             #[test]
             fn #slug() {
                 let expected_p1 = #exp_p1;
-                let input: #ty = #in_val;
 
                 for p1 in _gen_lists::P1_SOLUTIONS {
-                    assert_eq!(expected_p1, p1(input));
+                    assert_eq!(expected_p1, p1(#in_name));
                 }
             }
         }
