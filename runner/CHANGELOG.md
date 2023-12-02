@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.2.0...cargo-aoc-zen-runner-v0.3.0) - 2023-12-02
+
+### Added
+- Remove binary after downloading input
+
+### Fixed
+- Put year in binary's name for unique naming ([#157](https://github.com/proegssilb/aoc-zen-runner/pull/157))
+- Run and test in release mode
+
 ## [0.1.0](https://github.com/proegssilb/aoc-zen-runner/releases/tag/cargo-aoc-zen-runner-v0.1.0) - 2023-11-30
 
 ### Other
