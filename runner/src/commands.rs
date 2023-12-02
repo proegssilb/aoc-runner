@@ -14,7 +14,7 @@ use reqwest::{blocking::ClientBuilder, cookie::Jar, Url};
 use thiserror::Error;
 
 use crate::{
-    cli::{Commands, Aoc},
+    cli::{Aoc, Commands},
     codegen::{add_day_to_package, add_package_to_workspace, generate_day_file, populate_year_package},
     iodomain::{
         cargo::{day_from_bin, year_from_package, WorkspaceMeta},
@@ -190,8 +190,9 @@ pub fn prepare<T: BufRead, U: Write>(readfn: fn() -> T, writefn: fn() -> U, _cli
         .get(&(year as u16))
         .expect("Could not find year package program just added.");
     let day_map = meta.get_day_map(current_package);
+
     if !day_map.contains_key(&(day as u8)) {
-        add_day_to_package(day, &day_file, &year_root.join("Cargo.toml"), &year_root)?;
+        add_day_to_package(day, year, &day_file, &year_root.join("Cargo.toml"), &year_root)?;
     }
 
     // Download the input file if it might be available.
