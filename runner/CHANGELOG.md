@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.3.0...cargo-aoc-zen-runner-v0.3.1) - 2023-12-04
+
+### Fixed
+- *(deps)* update rust crate clap to 4.4.11
+
 ## [0.3.0](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.2.0...cargo-aoc-zen-runner-v0.3.0) - 2023-12-02
 
 ### Added
