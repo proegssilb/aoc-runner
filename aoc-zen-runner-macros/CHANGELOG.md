@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.1...aoc-zen-runner-macros-v0.1.2) - 2023-12-04
+
+### Fixed
+- Prevent conflicting lints in test const names
+
+### Other
+- Prevent contradictory lints when using `aoc_case` ([#165](https://github.com/proegssilb/aoc-zen-runner/pull/165))
+- Move `aoc` closer to other macros for readability
+
 ## [0.1.1](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.0...aoc-zen-runner-macros-v0.1.1) - 2023-12-02
 
 ### Fixed
