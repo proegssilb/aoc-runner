@@ -40,7 +40,7 @@ pub fn flag(_attr: TokenStream, item: TokenStream) -> TokenStream {
     proc_macro::TokenStream::from(item.into_token_stream())
 }
 
-// Tests -------------------------------------------------------------------
+// Test-related macros ----------------------------------------------------
 #[proc_macro_attribute]
 pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
     let args = parse_macro_input!(attr as AocCaseArgs);
@@ -89,6 +89,32 @@ pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 // AOC --------------------------------------------------------------------
+
+#[proc_macro_attribute]
+pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
+    let item = parse_macro_input!(item as ItemMod);
+    let mod_name = &item.ident;
+
+    let macro_args = parse_macro_input!(args as AocMacroArgs);
+
+    let agg_result = match discover_mod_contents(&item) {
+        Ok(data) => data,
+        Err(e) => {
+            return e.into_compile_error().into();
+        }
+    };
+
+    let mod_extension = gen_solution_lists_mod(&agg_result, mod_name);
+
+    let mut item_ts = item.into_token_stream();
+
+    item_ts.extend(mod_extension);
+    item_ts.extend(gen_quick_microbench());
+    item_ts.extend(gen_slow_microbench());
+    item_ts.extend(gen_main(macro_args.year_num, macro_args.day_num));
+
+    item_ts.into()
+}
 
 fn gen_idents_from_solns<'a>(
     part_indicator: &str,
@@ -300,28 +326,3 @@ fn gen_slow_microbench() -> proc_macro2::TokenStream {
     }
 }
 
-#[proc_macro_attribute]
-pub fn aoc(args: TokenStream, item: TokenStream) -> TokenStream {
-    let item = parse_macro_input!(item as ItemMod);
-    let mod_name = &item.ident;
-
-    let macro_args = parse_macro_input!(args as AocMacroArgs);
-
-    let agg_result = match discover_mod_contents(&item) {
-        Ok(data) => data,
-        Err(e) => {
-            return e.into_compile_error().into();
-        }
-    };
-
-    let mod_extension = gen_solution_lists_mod(&agg_result, mod_name);
-
-    let mut item_ts = item.into_token_stream();
-
-    item_ts.extend(mod_extension);
-    item_ts.extend(gen_quick_microbench());
-    item_ts.extend(gen_slow_microbench());
-    item_ts.extend(gen_main(macro_args.year_num, macro_args.day_num));
-
-    item_ts.into()
-}
