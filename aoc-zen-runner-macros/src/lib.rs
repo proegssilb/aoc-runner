@@ -48,7 +48,7 @@ pub fn aoc_case(attr: TokenStream, item: TokenStream) -> TokenStream {
     let p2 = args.expected_p2;
     let input = parse_macro_input!(item as ItemConst);
     let in_name = &input.ident;
-    let slug_str: String = format!("aoc_test_{}" , &input.ident.to_string().to_lowercase());
+    let slug_str: String = format!("aoc_test_{}", &input.ident.to_string().to_lowercase());
     let slug = Ident::new(&slug_str, input.ident.span());
 
     if let Some(exp_p2) = p2 {
@@ -325,4 +325,3 @@ fn gen_slow_microbench() -> proc_macro2::TokenStream {
         criterion_main!(benches);
     }
 }
-
