@@ -17,7 +17,7 @@ fn curr_pack_raw<'b>(meta: &'b Metadata, curr_dir: &Path) -> Option<&'b Package>
 }
 
 fn day_map_raw<'c>(curr_package: &'c Package) -> HashMap<u8, &'c Target> {
-    let day_filter: Regex = Regex::new(r"^d(?:ay)?(\d{1,2})$").unwrap();
+    let day_filter: Regex = Regex::new(r"d(?:ay)?(\d{1,2})$").unwrap();
     let mut day_map: HashMap<u8, &Target> = HashMap::default();
 
     for target in curr_package.targets.iter() {
@@ -60,7 +60,7 @@ pub fn year_from_package(pack: &Package) -> anyhow::Result<u16> {
 }
 
 pub fn day_from_bin(bin: &Target) -> ah::Result<u8> {
-    let day_filter: Regex = Regex::new(r"^d(?:ay)?(\d{1,2})$").unwrap();
+    let day_filter: Regex = Regex::new(r"d(?:ay)?(\d{1,2})$").unwrap();
     let matches = day_filter
         .captures(&bin.name)
         .ok_or(ah::anyhow!("Could not find day part in binary name: {}", &bin.name))?;
