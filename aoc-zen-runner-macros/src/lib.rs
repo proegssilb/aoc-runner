@@ -1,4 +1,5 @@
 use aggregate::{discover_mod_contents, AocSolutionsAggregation};
+use anyhow::Context;
 use cargo_metadata::MetadataCommand;
 use domain::{AocGeneratorData, AocSolverData};
 use parser::caseargs::AocCaseArgs;
@@ -199,9 +200,15 @@ fn gen_solution_lists_mod(agg_result: &AocSolutionsAggregation, mod_name: &Ident
 
 fn gen_main(year_num: u32, day_num: u32) -> proc_macro2::TokenStream {
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
-    let Ok(meta) = MetadataCommand::new().current_dir(manifest_dir).exec() else {
-        panic!("Could not gather cargo metadata.");
-    };
+    let meta_res = MetadataCommand::new()
+        .current_dir(manifest_dir)
+        .exec()
+        .context("Could not use cargo metadata to find inputs directory");
+    if meta_res.is_err() {
+        let err_str = meta_res.err().unwrap().to_string();
+        return quote! { compile_error!(#err_str) };
+    }
+    let meta = meta_res.unwrap();
     let mut input_path = meta.workspace_root;
     input_path.push("input");
     input_path.push(year_num.to_string());
