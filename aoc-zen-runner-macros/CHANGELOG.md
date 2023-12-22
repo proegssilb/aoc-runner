@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.3...aoc-zen-runner-macros-v0.1.4) - 2023-12-22
+
+### Fixed
+- *(deps)* update rust crate anyhow to 1.0.76 ([#181](https://github.com/proegssilb/aoc-zen-runner/pull/181))
+- *(deps)* update rust crate syn to 2.0.42 ([#180](https://github.com/proegssilb/aoc-zen-runner/pull/180))
+- *(deps)* update rust crate proc-macro2 to 1.0.71 ([#182](https://github.com/proegssilb/aoc-zen-runner/pull/182))
+- *(deps)* update rust crate thiserror to 1.0.51 ([#176](https://github.com/proegssilb/aoc-zen-runner/pull/176))
+- *(deps)* update rust crate syn to 2.0.41 ([#174](https://github.com/proegssilb/aoc-zen-runner/pull/174))
+- *(deps)* update rust crate syn to 2.0.40 ([#172](https://github.com/proegssilb/aoc-zen-runner/pull/172))
+
 ## [0.1.3](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.2...aoc-zen-runner-macros-v0.1.3) - 2023-12-08
 
 ### Fixed
