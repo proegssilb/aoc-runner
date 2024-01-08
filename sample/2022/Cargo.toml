@@ -40,5 +40,5 @@ petgraph = "0.6.4"
 rayon = "1.8.0"
 regex = "1"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.108"
+serde_json = "1.0.111"
 termion = "3.0.0"
