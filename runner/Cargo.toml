@@ -28,7 +28,7 @@ chrono-tz = "0.8.5"
 clap = { version = "4.5.0", features = ["derive", "cargo", "env", "unicode", "string"] }
 directories = "5.0.1"
 liquid = "0.26.4"
-regex = "1.10.2"
+regex = "1.10.3"
 reqwest = { version = "0.11.23", features = ["blocking", "cookies", "gzip", "brotli", "deflate"] }
 serde = { version = "1.0.195", features = ["derive", "serde_derive"] }
 serde_derive = "1.0.195"
