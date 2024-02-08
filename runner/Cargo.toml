@@ -34,4 +34,4 @@ serde = { version = "1.0.195", features = ["derive", "serde_derive"] }
 serde_derive = "1.0.195"
 thiserror = "1.0.56"
 toml_edit = "0.21.0"
-trycmd = { version = "0.14.19", features = [] }
+trycmd = { version = "0.14.21", features = [] }
