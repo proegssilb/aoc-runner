@@ -23,7 +23,7 @@ path="src/main.rs"
 [dependencies]
 anyhow = { version = "1.0.79", features = ["backtrace"] }
 cargo_metadata = "0.18.1"
-chrono = "0.4.31"
+chrono = "0.4.34"
 chrono-tz = "0.8.5"
 clap = { version = "4.4.14", features = ["derive", "cargo", "env", "unicode", "string"] }
 directories = "5.0.1"
