@@ -9,7 +9,7 @@ name = "day6"
 path = "src/day6.rs"
 
 [dependencies]
-aoc-zen-runner-macros = "0.1.5"
+aoc-zen-runner-macros = {path = "../../aoc-zen-runner-macros"}
 microbench = "0.5.0"
 criterion = "0.5.1"
 pprof = { version = "0.13.0", features = ["flamegraph", "protobuf", "criterion"] }
