@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.3.4...cargo-aoc-zen-runner-v0.3.5) - 2024-02-13
+
+### Fixed
+- *(deps)* update rust crate reqwest to 0.11.24
+- *(deps)* update rust crate chrono-tz to 0.8.6
+- *(deps)* update serde monorepo to 1.0.196
+- *(deps)* update rust crate chrono to 0.4.34
+- *(deps)* update rust crate regex to 1.10.3
+- *(deps)* update rust crate trycmd to 0.14.21
+- *(deps)* update rust crate clap to 4.5.0
+
 ## [0.3.4](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.3.3...cargo-aoc-zen-runner-v0.3.4) - 2024-01-08
 
 ### Fixed
