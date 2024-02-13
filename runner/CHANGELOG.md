@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.6](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.3.5...cargo-aoc-zen-runner-v0.3.6) - 2024-02-13
+
+### Fixed
+- *(deps)* update rust crate thiserror to 1.0.57
+
 ## [0.3.5](https://github.com/proegssilb/aoc-zen-runner/compare/cargo-aoc-zen-runner-v0.3.4...cargo-aoc-zen-runner-v0.3.5) - 2024-02-13
 
 ### Fixed

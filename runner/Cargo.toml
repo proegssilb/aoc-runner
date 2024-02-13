@@ -1,6 +1,6 @@
 [package]
 name = "cargo-aoc-zen-runner"
-version = "0.3.5"
+version = "0.3.6"
 edition = "2021"
 repository = "https://github.com/proegssilb/aoc-zen-runner"
 homepage = "https://github.com/proegssilb/aoc-zen-runner"
