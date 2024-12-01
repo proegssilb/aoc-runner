@@ -29,4 +29,4 @@ rust-crypto = "0.2.36"
 aoc-zen-runner-macros = {path = "../../aoc-zen-runner-macros"}
 microbench = "0.5.0"
 criterion = "0.5.1"
-pprof = { version = "0.13.0", features = ["flamegraph", "protobuf", "criterion"] }
+pprof = { version = "0.14.0", features = ["flamegraph", "protobuf", "criterion"] }
