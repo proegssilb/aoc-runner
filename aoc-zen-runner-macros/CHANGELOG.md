@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.8...aoc-zen-runner-macros-v0.1.9) - 2024-12-01
+
+### Fixed
+
+- *(deps)* update rust crate thiserror to v2
+
 ## [0.1.8](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.7...aoc-zen-runner-macros-v0.1.8) - 2024-12-01
 
 ### Fixed
