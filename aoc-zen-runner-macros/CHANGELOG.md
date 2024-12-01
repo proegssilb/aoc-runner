@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.7...aoc-zen-runner-macros-v0.1.8) - 2024-12-01
+
+### Fixed
+
+- *(deps)* update rust crate cargo_metadata to 0.19.0
+
 ## [0.1.7](https://github.com/proegssilb/aoc-zen-runner/compare/aoc-zen-runner-macros-v0.1.6...aoc-zen-runner-macros-v0.1.7) - 2024-02-13
 
 ### Fixed
